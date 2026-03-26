@@ -42,5 +42,9 @@ struct KonfiguracjaUAR
     // Zapis / odczyt
     void zapiszDoPlikuJSON(const std::string& sciezka) const;
     static KonfiguracjaUAR wczytajZPlikuJSON(const std::string& sciezka);
+    
+    // Serializacja / Deserializacja do stringa (protokol)
+    std::string serializujDoJSON() const;
+    static KonfiguracjaUAR wczytajZJSON(const std::string& jsonString);
 };
 

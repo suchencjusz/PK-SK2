@@ -6,8 +6,8 @@
 using json = nlohmann::json;
 using ordered_json = nlohmann::ordered_json;
 
-// Zapis
-void KonfiguracjaUAR::zapiszDoPlikuJSON(const std::string& sciezka) const
+// Serializacja/Deserializacja protokolu
+std::string KonfiguracjaUAR::serializujDoJSON() const
 {
     ordered_json j;
     ordered_json cfg;
@@ -50,28 +50,12 @@ void KonfiguracjaUAR::zapiszDoPlikuJSON(const std::string& sciezka) const
     cfg["GENERATOR WARTOSCI ZADANEJ"] = gen;
 
     j["KONFIGURACJA:"] = cfg;
-
-    std::ofstream ofs(sciezka);
-    if (!ofs)
-    {
-        throw std::runtime_error("Nie mozna otworzyc pliku do zapisu: " + sciezka);
-    }
-
-    ofs << j.dump(4);
+    return j.dump(); 
 }
 
-// Odczyt
-KonfiguracjaUAR KonfiguracjaUAR::wczytajZPlikuJSON(const std::string& sciezka)
+KonfiguracjaUAR KonfiguracjaUAR::wczytajZJSON(const std::string& jsonString)
 {
-    std::ifstream ifs(sciezka);
-    if (!ifs)
-    {
-        throw std::runtime_error("Nie mozna otworzyc pliku do odczytu: " + sciezka);
-    }
-
-    json j;
-    ifs >> j;
-
+    json j = json::parse(jsonString);
     KonfiguracjaUAR cfg;
 
     if (j.contains("KONFIGURACJA:"))
@@ -133,7 +117,35 @@ KonfiguracjaUAR KonfiguracjaUAR::wczytajZPlikuJSON(const std::string& sciezka)
             cfg.S_gen = jg.value("Skladowa stala (S)", cfg.S_gen);
         }
     }
-
     return cfg;
+}
+
+// Zapis
+void KonfiguracjaUAR::zapiszDoPlikuJSON(const std::string& sciezka) const
+{
+    std::ofstream ofs(sciezka);
+    if (!ofs)
+    {
+        throw std::runtime_error("Nie mozna otworzyc pliku do zapisu: " + sciezka);
+    }
+    
+    // Uzywamy istniejącej serializacji z wymuszeniem prety-print w oparciu o parser
+    json wczytanyString = json::parse(serializujDoJSON());
+    ofs << wczytanyString.dump(4);
+}
+
+// Odczyt
+KonfiguracjaUAR KonfiguracjaUAR::wczytajZPlikuJSON(const std::string& sciezka)
+{
+    std::ifstream ifs(sciezka);
+    if (!ifs)
+    {
+        throw std::runtime_error("Nie mozna otworzyc pliku do odczytu: " + sciezka);
+    }
+    
+    std::string zawartosc((std::istreambuf_iterator<char>(ifs)),
+                           std::istreambuf_iterator<char>());
+                           
+    return wczytajZJSON(zawartosc);
 }
 

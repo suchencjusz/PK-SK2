@@ -1,9 +1,12 @@
-﻿// Uruchamianie testow
-//#define TESTY
+﻿//#define TESTY
+#define TRYB_CLI_PROTOKOL
 
 #ifdef TESTY
 #include "Testy_Wlasne.h"
 #include <QCoreApplication>
+#elif defined(TRYB_CLI_PROTOKOL)
+#include <QCoreApplication>
+#include "ProtokolUAR.h"
 #else
 #include "MainWindow.h"
 #include <QApplication>
@@ -17,6 +20,15 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
     TestyWlasne::uruchom();
+    return 0;
+}
+
+// Start CLI
+#elif defined(TRYB_CLI_PROTOKOL)
+int main(int argc, char *argv[])
+{
+    QCoreApplication app(argc, argv);
+    uruchomTestProtokolu();
     return 0;
 }
 

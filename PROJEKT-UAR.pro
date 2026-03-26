@@ -20,7 +20,8 @@ SOURCES += \
     RegulatorPID.cpp \
     SymulacjaUAR.cpp \
     Testy_Wlasne.cpp \
-    UslugiUAR.cpp
+    UslugiUAR.cpp \
+    ProtokolUAR.cpp
 
 
 HEADERS += \
@@ -31,6 +32,7 @@ HEADERS += \
     MainWindow.h \
     ModelARX.h \
     ProstyUAR.h \
+    ProtokolUAR.h \
     qcustomplot.h \
     RegulatorPID.h \
     SymulacjaUAR.h \
