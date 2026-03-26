@@ -9,8 +9,8 @@ TARGET = PROJEKT-UAR
 TEMPLATE = app
 
 SOURCES += \
-    main.cpp \
     MainWindow.cpp \
+    main.cpp \
     ARXDialog.cpp \
     GeneratorWartosciZadanej.cpp \
     KonfiguracjaUAR.cpp \
@@ -24,11 +24,11 @@ SOURCES += \
 
 
 HEADERS += \
-    MainWindow.h \
     ARXDialog.h \
     GeneratorWartosciZadanej.h \
     Json.hpp \
     KonfiguracjaUAR.h \
+    MainWindow.h \
     ModelARX.h \
     ProstyUAR.h \
     qcustomplot.h \
@@ -39,8 +39,8 @@ HEADERS += \
 
 
 FORMS += \
-    MainWindow.ui \
-    ARXDialog.ui
+    ARXDialog.ui \
+    MainWindow.ui
 
 
 qnx: target.path = /tmp/$$TARGET/bin

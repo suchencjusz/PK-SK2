@@ -29,7 +29,7 @@ double ProstyUAR::symuluj(double w)
 {
     w_ = w;
 
-    e_ = y_ - w_;
+    e_ = w_ - y_;
 
     u_ = regulator_.symuluj(e_);
     uP_ = regulator_.pobierzUP();
