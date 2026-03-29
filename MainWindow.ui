@@ -508,6 +508,50 @@
           </layout>
          </widget>
         </item>
+
+        <item>
+         <widget class="QGroupBox" name="grpNetwork">
+          <property name="title">
+           <string>SIEĆ</string>
+          </property>
+          <layout class="QVBoxLayout" name="layNetwork">
+           <item>
+            <widget class="QPushButton" name="btnTrybSieciowy">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Ustawienia Sieciowe</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblStatusPolaczenia">
+             <property name="text">
+              <string>Tryb: Stacjonarny</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblStatusWydajnosci">
+             <property name="text">
+              <string>🟢 Symulacja wyrabia</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+
         <item>
          <widget class="QGroupBox" name="grpARX">
           <property name="title">
@@ -767,7 +811,7 @@
               <height>16777215</height>
              </size>
             </property>
-            <item>
+             <item>
              <property name="text">
               <string>Prostokąt</string>
               </property>

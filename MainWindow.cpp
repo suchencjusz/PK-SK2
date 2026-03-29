@@ -13,6 +13,9 @@
 #include <algorithm>
 #include <cmath>
 
+//sieci
+#include "siecidialog.h"
+
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -150,6 +153,11 @@ void MainWindow::budujInterfejs()
 
     connect(ui_->btnResetI, &QPushButton::clicked, [this]() { uslugi_.resetCalkowaniaPID(); });
     connect(ui_->btnResetD, &QPushButton::clicked, [this]() { uslugi_.resetRozniczkowaniaPID(); });
+
+    //sieci
+    connect(ui_->btnTrybSieciowy, &QPushButton::clicked, this, &MainWindow::on_btnTrybSieciowy_clicked);
+    aktualizujDostepnoscKontrolek();
+
 }
 
 // Wykresy
@@ -464,3 +472,64 @@ void MainWindow::otworzOknoParametrowARX()
         uslugi_.ustawOgraniczanieWyjsciaModelu(dlg.pobierzOgraniczY());
     }
 }
+
+//sieci
+
+void MainWindow::aktualizujDostepnoscKontrolek()
+{
+    const bool isStacjonarny = (trybPracy_ == TrybPracy::Stacjonarny);
+    const bool isRegulator   = (trybPracy_ == TrybPracy::SieciowyRegulator);
+    const bool isObiekt      = (trybPracy_ == TrybPracy::SieciowyObiekt);
+
+
+    //nie mam pojęcia dlaczego nie widać zmiany, ale za to nie da się kliknąć także chyba git
+
+    //blokowanie przycisków
+    ui_->grpGen->setEnabled(isStacjonarny || isRegulator);
+    ui_->grpPID->setEnabled(isStacjonarny || isRegulator);
+    ui_->grpSim->setEnabled(isStacjonarny || isRegulator);
+    ui_->grpFile->setEnabled(isStacjonarny || isRegulator);
+
+
+    ui_->grpARX->setEnabled(isStacjonarny || isObiekt);
+}
+
+void MainWindow::on_btnTrybSieciowy_clicked()
+{
+    SiecDialog dlg(this);
+    if (dlg.exec() == QDialog::Accepted) {
+        auto rola = dlg.pobierzRole();
+        auto tryb = dlg.pobierzTrybPolaczenia();
+        QString ip = dlg.pobierzAdresIP();
+        uint16_t port = dlg.pobierzPort();
+
+        if (rola == SiecDialog::RolaInstancji::Regulator) {
+            trybPracy_ = TrybPracy::SieciowyRegulator;
+        } else {
+            trybPracy_ = TrybPracy::SieciowyObiekt;
+        }
+
+        aktualizujDostepnoscKontrolek();
+
+        // Aktualizacja etykiety informacyjnej
+        QString info = QString("Połączono: %1 | %2:%3")
+                           .arg(rola == SiecDialog::RolaInstancji::Regulator ? "Regulator" : "Obiekt")
+                           .arg(tryb == SiecDialog::TrybPolaczenia::Serwer ? "Serwer (nasłuchuje)" : ip)
+                           .arg(port);
+        ui_->lblStatusPolaczenia->setText(info);
+
+        // TODO: Wywołanie metody z warstwy Usług do fizycznego otwarcia portów / połączenia TCP
+    }
+}
+
+void MainWindow::ustawStatusWydajnosci(bool wyrabiaSie)
+{
+    if (wyrabiaSie) {
+        ui_->lblStatusWydajnosci->setText("🟢 Symulacja wyrabia");
+        ui_->lblStatusWydajnosci->setStyleSheet("color: green; font-weight: bold;");
+    } else {
+        ui_->lblStatusWydajnosci->setText("🔴 Brak synchronizacji!");
+        ui_->lblStatusWydajnosci->setStyleSheet("color: red; font-weight: bold;");
+    }
+}
+

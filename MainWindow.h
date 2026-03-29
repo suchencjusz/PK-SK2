@@ -18,6 +18,12 @@ public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow() override;
 
+    enum class TrybPracy{
+        Stacjonarny,
+        SieciowyRegulator,
+        SieciowyObiekt
+    };
+
 private slots:
     // Akcje przyciskow
     void onBtnStart();
@@ -29,6 +35,8 @@ private slots:
     // Okna / aktualizacje
     void otworzOknoParametrowARX();
     void aktualizujParametryOnline();
+
+    void on_btnTrybSieciowy_clicked();
 
 private:
     // Budowa UI / wykresow
@@ -81,5 +89,11 @@ private:
     QDoubleSpinBox* spinTi_       = nullptr;
     QDoubleSpinBox* spinTd_       = nullptr;
     QComboBox*      comboTrybCalk_ = nullptr;
+
+    //sieci
+    void aktualizujDostepnoscKontrolek();
+    void ustawStatusWydajnosci(bool wyrabiaSie);
+
+    TrybPracy trybPracy_ = TrybPracy::Stacjonarny;
 };
 

@@ -21,7 +21,8 @@ SOURCES += \
     SymulacjaUAR.cpp \
     Testy_Wlasne.cpp \
     UslugiUAR.cpp \
-    ProtokolUAR.cpp
+    ProtokolUAR.cpp \
+    siecidialog.cpp
 
 
 HEADERS += \
@@ -38,11 +39,13 @@ HEADERS += \
     SymulacjaUAR.h \
     Testy_Wlasne.h \
     UslugiUAR.h\
+    siecidialog.h
 
 
 FORMS += \
     ARXDialog.ui \
-    MainWindow.ui
+    MainWindow.ui \
+    siecidialog.ui
 
 
 qnx: target.path = /tmp/$$TARGET/bin

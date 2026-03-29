@@ -1,5 +1,5 @@
 ﻿//#define TESTY
-#define TRYB_CLI_PROTOKOL
+// #define TRYB_CLI_PROTOKOL
 
 #ifdef TESTY
 #include "Testy_Wlasne.h"
