@@ -1,5 +1,6 @@
 QT       += core gui
 QT       += printsupport
+QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,7 +23,8 @@ SOURCES += \
     Testy_Wlasne.cpp \
     UslugiUAR.cpp \
     ProtokolUAR.cpp \
-    siecidialog.cpp
+    siecidialog.cpp \
+    SiecKonsolaUAR.cpp
 
 
 HEADERS += \
@@ -39,7 +41,8 @@ HEADERS += \
     SymulacjaUAR.h \
     Testy_Wlasne.h \
     UslugiUAR.h\
-    siecidialog.h
+    siecidialog.h \
+    SiecKonsolaUAR.h
 
 
 FORMS += \

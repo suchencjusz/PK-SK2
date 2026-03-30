@@ -1,5 +1,6 @@
 ﻿//#define TESTY
 // #define TRYB_CLI_PROTOKOL
+#define TRYB_CLI_SIEC
 
 #ifdef TESTY
 #include "Testy_Wlasne.h"
@@ -7,6 +8,9 @@
 #elif defined(TRYB_CLI_PROTOKOL)
 #include <QCoreApplication>
 #include "ProtokolUAR.h"
+#elif defined(TRYB_CLI_SIEC)
+#include <QCoreApplication>
+#include "SiecKonsolaUAR.h"
 #else
 #include "MainWindow.h"
 #include <QApplication>
@@ -28,7 +32,16 @@ int main(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-    uruchomTestProtokolu();
+    ProtokolUAR::uruchomTestProtokolu();
+    return 0;
+}
+
+// Start CLI SIEC
+#elif defined(TRYB_CLI_SIEC)
+int main(int argc, char *argv[])
+{
+    QCoreApplication app(argc, argv);
+    SiecKonsolaUAR::uruchom();
     return 0;
 }
 
