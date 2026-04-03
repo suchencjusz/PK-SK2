@@ -1,13 +1,18 @@
 #include "SiecKonsolaUAR.h"
 #include "ProtokolUAR.h"
+#include "RegulatorPID.h"
+#include "GeneratorWartosciZadanej.h"
+#include "ModelARX.h"
 
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QByteArray>
 #include <QElapsedTimer>
+#include <QThread>
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <string>
 #include <cstring>
@@ -235,6 +240,8 @@ void SiecKonsolaUAR::uruchom()
         std::cout << "2. Wyslij PROBKA_SYMULACJI\n";
         std::cout << "3. Wyslij STEROWANIE\n";
         std::cout << "4. Odbierz jedna ramke (timeout 30 s)\n";
+        std::cout << "5. Ciagla symulacja: Generator (wysyla probki, odbiera PID)\n";
+        std::cout << "6. Ciagla symulacja: Regulator (odbiera probki, wysyla PID)\n";
         std::cout << "0. Zakoncz\n";
         std::cout << "> Wybor: ";
 
@@ -290,6 +297,102 @@ void SiecKonsolaUAR::uruchom()
             }
 
             wypiszWiadomosc(wiadomosc);
+            continue;
+        }
+
+        if (wybor == 5)
+        {
+            std::cout << "[INFO] Rozpoczynam wysylanie i odbieranie w petli. Przerwij (Ctrl+C).\n";
+            GeneratorWartosciZadanej gen;
+            gen.ustawTyp(GeneratorWartosciZadanej::Typ::Prostokat);
+            gen.ustawAmplituda(1.0);
+            gen.ustawOkresRzeczywisty(2.0);
+            gen.ustawWypelnienie(0.5);
+
+            ModelARX model({ -0.4 }, { 0.6 }, 1, 0.0); // jakis arx z d0py
+            model.ustawLimity(-10, 10, -10, 10);
+
+            double t = 0.0;
+            uint32_t krok = 0;
+            double y = 0.0;
+
+            while (socket->state() == QAbstractSocket::ConnectedState)
+            {
+                double w = gen.generuj(t);
+                
+                PakietProbkiSymulacji p;
+                p.krok = krok++;
+                p.t = t;
+                p.w = w;
+                p.y = y;
+
+                std::vector<uint8_t> ramkaOut = ProtokolUAR::zbudujRamkeProbkiSymulacji(p);
+                if (!wyslijRamke(socket, ramkaOut)) break;
+
+                std::vector<uint8_t> odebrana;
+                std::string blad;
+                if (odbierzPelnaRamke(socket, odebrana, 1000, blad))
+                {
+                    OdebranaWiadomosc msg;
+                    if (ProtokolUAR::dekodujRamke(odebrana, msg, &blad) && msg.typ == TypWiadomosci::Sterowanie)
+                    {
+                        const PakietSterowania& s = std::get<PakietSterowania>(msg.payload);
+                        
+                        y = model.symuluj(s.u);
+                        
+                        int32_t opoznienie = static_cast<int32_t>(p.krok) - static_cast<int32_t>(s.krok);
+                        std::cout << std::fixed << std::setprecision(3) 
+                                  << "[GEN] wys PROBKA(" << p.krok << ") | odb STER(" << s.krok << ")"
+                                  << " | opoznienie=" << std::setw(2) << opoznienie
+                                  << " | w=" << std::setw(6) << w 
+                                  << " | y=" << std::setw(6) << y 
+                                  << " | u=" << std::setw(6) << s.u 
+                                  << " | t=" << std::setw(5) << t << "\r" << std::flush;
+                    }
+                }
+                
+                t += 0.1;
+                QThread::msleep(100);
+            }
+            continue;
+        }
+
+        if (wybor == 6)
+        {
+            std::cout << "[INFO] Rozpoczynam odbieranie probek i wysylanie PID. Przerwij (Ctrl+C).\n";
+            RegulatorPID pid(0.5, 5.0, 0.2);
+
+            while (socket->state() == QAbstractSocket::ConnectedState)
+            {
+                std::vector<uint8_t> odebrana;
+                std::string blad;
+                if (odbierzPelnaRamke(socket, odebrana, 5000, blad))
+                {
+                    OdebranaWiadomosc msg;
+                    if (ProtokolUAR::dekodujRamke(odebrana, msg, &blad) && msg.typ == TypWiadomosci::ProbkaSymulacji)
+                    {
+                        const PakietProbkiSymulacji& p = std::get<PakietProbkiSymulacji>(msg.payload);
+                        double e = p.w - p.y;
+                        double u = pid.symuluj(e);
+
+                        PakietSterowania s;
+                        s.krok = p.krok;
+                        s.u = u;
+                        s.uP = pid.pobierzUP();
+                        s.uI = pid.pobierzUI();
+                        s.uD = pid.pobierzUD();
+
+                        std::vector<uint8_t> ramkaOut = ProtokolUAR::zbudujRamkeSterowania(s);
+                        wyslijRamke(socket, ramkaOut);
+
+                        std::cout << std::fixed << std::setprecision(3) 
+                                  << "[PID] odb PROBKA(" << p.krok << ") | wys STER(" << s.krok << ")"
+                                  << " | e=" << std::setw(6) << e 
+                                  << " | u=" << std::setw(6) << u 
+                                  << " | t=" << std::setw(5) << p.t << "                  \r" << std::flush;
+                    }
+                }
+            }
             continue;
         }
 

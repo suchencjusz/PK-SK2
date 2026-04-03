@@ -1,6 +1,6 @@
 ﻿//#define TESTY
 // #define TRYB_CLI_PROTOKOL
-#define TRYB_CLI_SIEC
+// #define TRYB_CLI_SIEC
 
 #ifdef TESTY
 #include "Testy_Wlasne.h"
