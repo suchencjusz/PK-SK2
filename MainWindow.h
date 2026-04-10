@@ -2,6 +2,8 @@
 #include <QMainWindow>
 #include "UslugiUAR.h"
 #include "qcustomplot.h"
+#include "PolaczenieSieciowe.h"
+#include <QTimer>
 
 namespace Ui { class MainWindow; }
 class QDoubleSpinBox;
@@ -35,10 +37,25 @@ private slots:
     // Okna / aktualizacje
     void otworzOknoParametrowARX();
     void aktualizujParametryOnline();
+    void onTcpZdarzenie(const QString& log);
+    void onTcpStanZmieniony(const QString& stan);
+    void onPolaczenieUtracone(const QString& powod);
+    void onTcpRamkaOdebrana(const QByteArray& ramka);
+    void onTcpStatystyki(quint64 wyslane, quint64 odebrane);
+    void aktualizujOpoznienie(int32_t opoznienie);
 
     void on_btnTrybSieciowy_clicked();
+    void on_btnRozlaczSiec_clicked();
+    void onWatchdogPolaczenia();
+
+    void on_btnResetI_clicked();
 
 private:
+    void zainicjujWatchdog();
+    void rozlaczSiecAWARYJNIE(const QString& powod);
+    void wyslijBiezacaKonfiguracjeSieciowa();
+    void wyzerujStanSieci();
+    void odswiezTelemetryPolaczenia();
     // Budowa UI / wykresow
     void budujInterfejs();
     void konfigurujWykresy();
@@ -92,8 +109,23 @@ private:
 
     //sieci
     void aktualizujDostepnoscKontrolek();
-    void ustawStatusWydajnosci(bool wyrabiaSie);
 
     TrybPracy trybPracy_ = TrybPracy::Stacjonarny;
+    PolaczenieSieciowe* polaczenieSieciowe_ = nullptr;
+
+    int32_t m_ostatnieOpoznienieSieci = 0;
+
+    QTimer* m_watchdogPolaczenia = nullptr;
+    int m_incydentyOpoznienia = 0;
+    int m_incydentyBrakRamki = 0;
+    int m_incydentyBlednegoDekodowania = 0;
+    bool m_odebranoRamkeZWatchdoga = false;
+    bool m_watchdogUzbrojonyPoPierwszejRamce = false;
+    bool m_trwaZdalnaSynchronizacjaKonfiguracji = false;
+    bool m_trwaAwaryjneRozlaczenie = false;
+    QString m_opisSesjiPolaczenia;
+    QString m_ostatniStanPolaczenia;
+    quint64 m_telemetriaWyslaneBajty = 0;
+    quint64 m_telemetriaOdebraneBajty = 0;
 };
 

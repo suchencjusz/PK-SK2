@@ -58,6 +58,22 @@ public:
     void ustawSkladowaStalaGeneratora(double S);
     void ustawWypelnienieGeneratora(double p);
 
+    // Krok sieciowy
+    void ustawTrybPracy(ProstyUAR::TrybPracy tryb)
+    {
+        trybPracy_ = tryb;
+        sym_.ustawTrybPracy(tryb);
+
+        if (trybPracy_ != ProstyUAR::TrybPracy::SieciowyRegulator) {
+            m_oczekujeResetuI = false;
+            m_oczekujeResetuD = false;
+        }
+    }
+    void ustawSiecioweY(double y) { sym_.ustawSiecioweY(y); }
+    void ustawSiecioweW(double w) { sym_.ustawSiecioweW(w); }
+    void ustawSiecioweU(double u) { sym_.ustawSiecioweU(u); }
+    void naPojedynczyKrokSieciowyObiektu();
+
     // Konfiguracja pelna
     KonfiguracjaUAR pobierzKonfiguracje() const;
     void ustawKonfiguracje(const KonfiguracjaUAR& cfg);
@@ -68,12 +84,27 @@ public:
     // Callback probki
     void ustawCallbackProbki(CallbackProbki cb) { onProbka_ = std::move(cb); }
 
+public slots:
+    void przetworzRamkeSieciowa(const QByteArray& ramka);
+
+signals:
+    void wyslijRamkeSieciowa(const QByteArray& ramka);
+    void opoznienieWyliczone(int32_t opoznienie);
+    void bladDekodowaniaRamki(const QString& powod);
+    void konfiguracjaZaktualizowanaZSieci();
+
 private:
     // Obsluga timera
     void onTimerTick();
+    void wyslijPakietSterowaniaSieciowego(uint8_t dodatkoweFlagi);
 
     SymulacjaUAR sym_;
     CallbackProbki onProbka_;
+
+    ProstyUAR::TrybPracy trybPracy_ = ProstyUAR::TrybPracy::Stacjonarny;
+    uint64_t m_krokSieciowySymulacji = 0;
+    bool m_oczekujeResetuI = false;
+    bool m_oczekujeResetuD = false;
 
     ProbkaUAR ostatniaProbka_{ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 };

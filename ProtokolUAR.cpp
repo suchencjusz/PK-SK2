@@ -226,109 +226,113 @@ bool ProtokolUAR::dekodujRamke(const std::vector<uint8_t> &ramka,
     return false;
 }
 
-void ProtokolUAR::uruchomTestProtokolu()
-{
-    std::cout << "1. Wygeneruj ramke KONFIGURACJA\n";
-    std::cout << "2. Wygeneruj ramke PROBKA_SYMULACJI\n";
-    std::cout << "3. Wygeneruj ramke STEROWANIE\n";
-    std::cout << "4. Wczytaj ramke HEX i zdeserializuj (auto-typ)\n";
-    std::cout << "> Wybierz opcje (1/2/3/4): ";
 
-    int wybor;
-    if (!(std::cin >> wybor))
-        return;
+// do wywalenia
+// void ProtokolUAR::uruchomTestProtokolu()
+// {
+//     std::cout << "1. Wygeneruj ramke KONFIGURACJA\n";
+//     std::cout << "2. Wygeneruj ramke PROBKA_SYMULACJI\n";
+//     std::cout << "3. Wygeneruj ramke STEROWANIE\n";
+//     std::cout << "4. Wczytaj ramke HEX i zdeserializuj (auto-typ)\n";
+//     std::cout << "> Wybierz opcje (1/2/3/4): ";
 
-    if (wybor == 1)
-    {
-        KonfiguracjaUAR konf;
-        konf.kP = 7.77;
-        konf.symulacjaTTms = 123;
+//     int wybor;
+//     if (!(std::cin >> wybor))
+//         return;
 
-        std::vector<uint8_t> ramka = zbudujRamkeKonfiguracji(konf);
+//     if (wybor == 1)
+//     {
+//         KonfiguracjaUAR konf;
+//         konf.kP = 7.77;
+//         konf.symulacjaTTms = 123;
 
-        std::cout << "\n[NADAWCA] Utworzono ramke. Skopiuj ponizszy kod HEX:\n";
-        std::cout << doHex(ramka) << "\n\n";
-    }
-    else if (wybor == 2)
-    {
-        PakietProbkiSymulacji p;
-        p.krok = 12;
-        p.t = 2.4;
-        p.w = 1.5;
-        p.y = 1.23;
+//         std::vector<uint8_t> ramka = zbudujRamkeKonfiguracji(konf);
 
-        const std::vector<uint8_t> ramka = zbudujRamkeProbkiSymulacji(p);
+//         std::cout << "\n[NADAWCA] Utworzono ramke. Skopiuj ponizszy kod HEX:\n";
+//         std::cout << doHex(ramka) << "\n\n";
+//     }
+//     else if (wybor == 2)
+//     {
+//         PakietProbkiSymulacji p;
+//         p.rolaNadawcy = RolaInstancjiSieciowej::Obiekt;
+//         p.krok = 12;
+//         p.t = 2.4;
+//         p.w = 1.5;
+//         p.y = 1.23;
 
-        std::cout << "\n[NADAWCA] Utworzono ramke probki. Skopiuj ponizszy kod HEX:\n";
-        std::cout << doHex(ramka) << "\n\n";
-    }
-    else if (wybor == 3)
-    {
-        PakietSterowania s;
-        s.krok = 12;
-        s.u = 0.88;
-        s.uP = 0.66;
-        s.uI = 0.20;
-        s.uD = 0.02;
+//         const std::vector<uint8_t> ramka = zbudujRamkeProbkiSymulacji(p);
 
-        const std::vector<uint8_t> ramka = zbudujRamkeSterowania(s);
+//         std::cout << "\n[NADAWCA] Utworzono ramke probki. Skopiuj ponizszy kod HEX:\n";
+//         std::cout << doHex(ramka) << "\n\n";
+//     }
+//     else if (wybor == 3)
+//     {
+//         PakietSterowania s;
+//         s.rolaNadawcy = RolaInstancjiSieciowej::Regulator;
+//         s.krok = 12;
+//         s.u = 0.88;
+//         s.uP = 0.66;
+//         s.uI = 0.20;
+//         s.uD = 0.02;
 
-        std::cout << "\n[NADAWCA] Utworzono ramke sterowania. Skopiuj ponizszy kod HEX:\n";
-        std::cout << doHex(ramka) << "\n\n";
-    }
-    else if (wybor == 4)
-    {
-        std::cout << "\n[ODBIORCA] Wklej kod HEX wygenerowany na nadawcy: ";
-        std::string hexInput;
-        std::cin >> hexInput;
+//         const std::vector<uint8_t> ramka = zbudujRamkeSterowania(s);
 
-        std::vector<uint8_t> ramka = zHex(hexInput);
+//         std::cout << "\n[NADAWCA] Utworzono ramke sterowania. Skopiuj ponizszy kod HEX:\n";
+//         std::cout << doHex(ramka) << "\n\n";
+//     }
+//     else if (wybor == 4)
+//     {
+//         std::cout << "\n[ODBIORCA] Wklej kod HEX wygenerowany na nadawcy: ";
+//         std::string hexInput;
+//         std::cin >> hexInput;
 
-        OdebranaWiadomosc wiadomosc;
-        std::string blad;
-        if (!dekodujRamke(ramka, wiadomosc, &blad))
-        {
-            std::cout << "Blad: " << blad << "\n";
-            return;
-        }
+//         std::vector<uint8_t> ramka = zHex(hexInput);
 
-        switch (wiadomosc.typ)
-        {
-        case TypWiadomosci::Konfiguracja:
-        {
-            const KonfiguracjaUAR &cfg = std::get<KonfiguracjaUAR>(wiadomosc.payload);
+//         OdebranaWiadomosc wiadomosc;
+//         std::string blad;
+//         if (!dekodujRamke(ramka, wiadomosc, &blad))
+//         {
+//             std::cout << "Blad: " << blad << "\n";
+//             return;
+//         }
 
-            std::cout << " -> Konfiguracja odtworzona poprawnie\n";
-            std::cout << "    Odczytane kP = " << cfg.kP << "\n";
-            std::cout << "    Odczytane TTms = " << cfg.symulacjaTTms << "\n";
-            break;
-        }
-        case TypWiadomosci::ProbkaSymulacji:
-        {
-            const PakietProbkiSymulacji &p = std::get<PakietProbkiSymulacji>(wiadomosc.payload);
+//         switch (wiadomosc.typ)
+//         {
+//         case TypWiadomosci::Konfiguracja:
+//         {
+//             const KonfiguracjaUAR &cfg = std::get<KonfiguracjaUAR>(wiadomosc.payload);
 
-            std::cout << " -> Probka symulacji odczytana poprawnie\n";
-            std::cout << "    krok = " << p.krok << "\n";
-            std::cout << "    t = " << p.t << ", w = " << p.w << ", y = " << p.y << "\n";
-            break;
-        }
-        case TypWiadomosci::Sterowanie:
-        {
-            const PakietSterowania &s = std::get<PakietSterowania>(wiadomosc.payload);
+//             std::cout << " -> Konfiguracja odtworzona poprawnie\n";
+//             std::cout << "    Odczytane kP = " << cfg.kP << "\n";
+//             std::cout << "    Odczytane TTms = " << cfg.symulacjaTTms << "\n";
+//             break;
+//         }
+//         case TypWiadomosci::ProbkaSymulacji:
+//         {
+//             const PakietProbkiSymulacji &p = std::get<PakietProbkiSymulacji>(wiadomosc.payload);
 
-            std::cout << " -> Pakiet sterowania odczytany poprawnie\n";
-            std::cout << "    krok = " << s.krok << "\n";
-            std::cout << "    u = " << s.u
-                      << " (uP=" << s.uP << ", uI=" << s.uI << ", uD=" << s.uD << ")\n";
-            break;
-        }
-        default:
-            std::cout << "Blad: Nieobslugiwany typ wiadomosci.\n";
-            return;
-        }
-    }
-    else
-    {
-        std::cout << "Nieznana opcja.\n";
-    }
-}
+//             std::cout << " -> Probka symulacji odczytana poprawnie\n";
+//             std::cout << "    krok = " << p.krok << "\n";
+//             std::cout << "    t = " << p.t << ", w = " << p.w << ", y = " << p.y << "\n";
+//             break;
+//         }
+//         case TypWiadomosci::Sterowanie:
+//         {
+//             const PakietSterowania &s = std::get<PakietSterowania>(wiadomosc.payload);
+
+//             std::cout << " -> Pakiet sterowania odczytany poprawnie\n";
+//             std::cout << "    krok = " << s.krok << "\n";
+//             std::cout << "    u = " << s.u
+//                       << " (uP=" << s.uP << ", uI=" << s.uI << ", uD=" << s.uD << ")\n";
+//             break;
+//         }
+//         default:
+//             std::cout << "Blad: Nieobslugiwany typ wiadomosci.\n";
+//             return;
+//         }
+//     }
+//     else
+//     {
+//         std::cout << "Nieznana opcja.\n";
+//     }
+// }

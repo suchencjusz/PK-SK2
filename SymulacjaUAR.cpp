@@ -72,13 +72,29 @@ void SymulacjaUAR::ustawOknoObserwacjiS(int oknoS)
 void SymulacjaUAR::start()
 {
     uruchomiona_ = true;
-    timer_->start();
+    if (tryb_ == ProstyUAR::TrybPracy::SieciowyObiekt) {
+        timer_->stop();
+    } else {
+        timer_->start();
+    }
 }
 
 void SymulacjaUAR::stop()
 {
     uruchomiona_ = false;
     timer_->stop();
+}
+
+void SymulacjaUAR::ustawTrybPracy(ProstyUAR::TrybPracy tryb)
+{
+    tryb_ = tryb;
+    uar_.ustawTrybPracy(tryb);
+
+    if (tryb_ == ProstyUAR::TrybPracy::SieciowyObiekt) {
+        timer_->stop(); // Takty dyktuje regulator, wiec my przestajemy uzywac naszego zegara
+    } else if (uruchomiona_) {
+        timer_->start(); // Jeśli stacjonalnie/regulator, wracamy do taktowania wlasnym zegarem
+    }
 }
 
 ProbkaUAR SymulacjaUAR::wykonajKrok()
@@ -101,6 +117,9 @@ ProbkaUAR SymulacjaUAR::wykonajKrok()
     p.uD = uar_.pobierzUD();
 
     ostatniaProbka_ = p;
+
+    // W trybie obiektu krok wykonuje sie na ramke z sieci, ale nadal musimy przesuwac os czasu
+    // do rysowania wykresow i spojnosc kroku symulacji tla.
     i_++;
     t_ += static_cast<double>(TTms_) / 1000.0;
 

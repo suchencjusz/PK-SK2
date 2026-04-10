@@ -15,6 +15,51 @@
 
 //sieci
 #include "siecidialog.h"
+#include "ProtokolUAR.h"
+
+namespace {
+
+QString opisRoliSieciowej(SiecDialog::RolaInstancji rola)
+{
+    switch (rola) {
+    case SiecDialog::RolaInstancji::Regulator:
+        return "Regulator";
+    case SiecDialog::RolaInstancji::Obiekt:
+        return "Obiekt";
+    }
+
+    return "Nieznana";
+}
+
+QString opisTrybuPolaczenia(SiecDialog::TrybPolaczenia tryb,
+                            const QString& ip,
+                            uint16_t port)
+{
+    switch (tryb) {
+    case SiecDialog::TrybPolaczenia::Serwer:
+        return QString("Serwer: port %1 (oczekiwanie na klienta)").arg(port);
+    case SiecDialog::TrybPolaczenia::Klient:
+        return QString("Klient: %1:%2").arg(ip).arg(port);
+    }
+
+    return "Tryb połączenia: nieznany";
+}
+
+QString formatujBitySieci(quint64 bajty)
+{
+    const double bity = static_cast<double>(bajty) * 8.0;
+
+    if (bity < 1000.0)
+        return QString::number(bity, 'f', 0) + " b";
+    if (bity < 1000.0 * 1000.0)
+        return QString::number(bity / 1000.0, 'f', 2) + " kb";
+    if (bity < 1000.0 * 1000.0 * 1000.0)
+        return QString::number(bity / (1000.0 * 1000.0), 'f', 2) + " mb";
+
+    return QString::number(bity / (1000.0 * 1000.0 * 1000.0), 'f', 2) + " gb";
+}
+
+} // namespace
 
 
 MainWindow::MainWindow(QWidget* parent)
@@ -24,6 +69,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     budujInterfejs();
     konfigurujWykresy();
+    zainicjujWatchdog();
 
     // Zasil kontrolki wartosciami z backendu
     odswiezGUIzKonfiguracji();
@@ -87,6 +133,8 @@ void MainWindow::budujInterfejs()
     ui_->btnZapisz->setMinimumHeight(btnHeight);
     ui_->btnWczytaj->setMinimumHeight(btnHeight);
     ui_->btnARX->setMinimumHeight(btnHeight);
+    ui_->btnTrybSieciowy->setFixedHeight(btnHeight);
+    ui_->btnRozlaczSiec->setFixedHeight(btnHeight);
 
 
 
@@ -127,14 +175,20 @@ void MainWindow::budujInterfejs()
     connect(ui_->btnARX, &QPushButton::clicked, this, &MainWindow::otworzOknoParametrowARX);
 
     connect(spinOkno_, &QSpinBox::editingFinished, [this]() {
+        if (m_trwaZdalnaSynchronizacjaKonfiguracji)
+            return;
         oknoObserwacjiS_ = spinOkno_->value();
         uslugi_.ustawOknoObserwacjiS(spinOkno_->value());
+        wyslijBiezacaKonfiguracjeSieciowa();
     });
 
     connect(spinInterwal_, &QSpinBox::editingFinished, [this]() {
+        if (m_trwaZdalnaSynchronizacjaKonfiguracji)
+            return;
         const int ms = spinInterwal_->value();
         uslugi_.ustawInterwalSymulacjiMs(ms);
         interwalMs_ = ms;
+        wyslijBiezacaKonfiguracjeSieciowa();
     });
 
     const QList<QDoubleSpinBox*> params = {
@@ -154,10 +208,40 @@ void MainWindow::budujInterfejs()
     connect(ui_->btnResetI, &QPushButton::clicked, [this]() { uslugi_.resetCalkowaniaPID(); });
     connect(ui_->btnResetD, &QPushButton::clicked, [this]() { uslugi_.resetRozniczkowaniaPID(); });
 
-    //sieci
-    connect(ui_->btnTrybSieciowy, &QPushButton::clicked, this, &MainWindow::on_btnTrybSieciowy_clicked);
+    //sieci ustawienia (UI łączy on_btnTrybSieciowy_clicked automatycznie, nie duplikujemy connect!)
     aktualizujDostepnoscKontrolek();
 
+    polaczenieSieciowe_ = new PolaczenieSieciowe(this);
+    connect(polaczenieSieciowe_, &PolaczenieSieciowe::zdarzenieTCP, this, &MainWindow::onTcpZdarzenie);
+    connect(polaczenieSieciowe_, &PolaczenieSieciowe::stanZmieniony, this, &MainWindow::onTcpStanZmieniony);
+    connect(polaczenieSieciowe_, &PolaczenieSieciowe::polaczenieUtracone, this, &MainWindow::onPolaczenieUtracone);
+    connect(polaczenieSieciowe_, &PolaczenieSieciowe::ramkaOdebrana, this, &MainWindow::onTcpRamkaOdebrana);
+    connect(polaczenieSieciowe_, &PolaczenieSieciowe::statystykiZaktualizowane, this, &MainWindow::onTcpStatystyki);
+    
+    // Nowe podłączenia logiki sieciowej UslugiUAR
+    connect(&uslugi_, &UslugiUAR::wyslijRamkeSieciowa, polaczenieSieciowe_, &PolaczenieSieciowe::wyslijRamke);
+    connect(&uslugi_, &UslugiUAR::opoznienieWyliczone, this, &MainWindow::aktualizujOpoznienie);
+    connect(&uslugi_, &UslugiUAR::bladDekodowaniaRamki, [this](const QString& powod) {
+        qDebug() << "[TCP] Błąd dekodowania:" << powod;
+
+        if (powod.startsWith("Niezgodna para ról")) {
+            rozlaczSiecAWARYJNIE(powod);
+            return;
+        }
+
+        m_incydentyBlednegoDekodowania++;
+    });
+    connect(&uslugi_, &UslugiUAR::konfiguracjaZaktualizowanaZSieci, [this]() {
+        m_trwaZdalnaSynchronizacjaKonfiguracji = true;
+        odswiezGUIzKonfiguracji();
+        m_trwaZdalnaSynchronizacjaKonfiguracji = false;
+        aktualizujDostepnoscKontrolek();
+    });
+
+    ui_->lblStatusPolaczenia->setWordWrap(true);
+    m_opisSesjiPolaczenia = "Tryb: Stacjonarny";
+    m_ostatniStanPolaczenia = "Brak aktywnego połączenia";
+    odswiezTelemetryPolaczenia();
 }
 
 // Wykresy
@@ -341,12 +425,16 @@ void MainWindow::wyczyscWykresy()
 void MainWindow::onBtnStart()
 {
     aktualizujParametryOnline();
+    m_watchdogUzbrojonyPoPierwszejRamce = false;
+    m_odebranoRamkeZWatchdoga = true;
+    m_incydentyBrakRamki = 0;
     uslugi_.start();
 }
 
 void MainWindow::onBtnStop()
 {
     uslugi_.stop();
+    m_watchdogUzbrojonyPoPierwszejRamce = false;
 }
 
 void MainWindow::onBtnReset()
@@ -360,6 +448,9 @@ void MainWindow::onBtnReset()
 // PID/Generator
 void MainWindow::aktualizujParametryOnline()
 {
+    if (m_trwaZdalnaSynchronizacjaKonfiguracji)
+        return;
+
     uslugi_.ustawPID(spinKp_->value(), spinTi_->value(), spinTd_->value());
 
     uslugi_.ustawTrybCalkowaniaPID(
@@ -378,6 +469,8 @@ void MainWindow::aktualizujParametryOnline()
     uslugi_.ustawOkresRzeczywistyGeneratora(spinGenOkres_->value());
     uslugi_.ustawWypelnienieGeneratora(spinGenWypelnienie_->value());
     uslugi_.ustawSkladowaStalaGeneratora(spinGenOffset_->value());
+
+    wyslijBiezacaKonfiguracjeSieciowa();
 }
 
 // Zapis/Odczyt
@@ -416,6 +509,7 @@ void MainWindow::onBtnWczytaj()
     }
 
     odswiezGUIzKonfiguracji();
+    wyslijBiezacaKonfiguracjeSieciowa();
 }
 
 
@@ -461,75 +555,309 @@ void MainWindow::otworzOknoParametrowARX()
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    if (dlg.modelChanged())
-        uslugi_.ustawModelARX(dlg.pobierzA(), dlg.pobierzB(), dlg.pobierzK(), dlg.pobierzSigma());
+    bool zmieniono = false;
 
-    if (dlg.limitsChanged())
+    if (dlg.modelChanged()) {
+        uslugi_.ustawModelARX(dlg.pobierzA(), dlg.pobierzB(), dlg.pobierzK(), dlg.pobierzSigma());
+        zmieniono = true;
+    }
+
+    if (dlg.limitsChanged()) {
         uslugi_.ustawLimityModelu(dlg.pobierzUMin(), dlg.pobierzUMax(), dlg.pobierzYMin(), dlg.pobierzYMax());
+        zmieniono = true;
+    }
 
     if (dlg.flagsChanged()) {
         uslugi_.ustawOgraniczanieSterowaniaModelu(dlg.pobierzOgraniczU());
         uslugi_.ustawOgraniczanieWyjsciaModelu(dlg.pobierzOgraniczY());
+        zmieniono = true;
     }
+
+    if (zmieniono)
+        wyslijBiezacaKonfiguracjeSieciowa();
 }
 
 //sieci
 
+void MainWindow::wyzerujStanSieci()
+{
+    m_ostatnieOpoznienieSieci = 0;
+    m_incydentyBrakRamki = 0;
+    m_incydentyBlednegoDekodowania = 0;
+    m_incydentyOpoznienia = 0;
+    m_odebranoRamkeZWatchdoga = false;
+    m_watchdogUzbrojonyPoPierwszejRamce = false;
+    m_telemetriaWyslaneBajty = 0;
+    m_telemetriaOdebraneBajty = 0;
+}
+
+void MainWindow::odswiezTelemetryPolaczenia()
+{
+    const QString sesja = m_opisSesjiPolaczenia.isEmpty()
+                              ? QString("Tryb: Stacjonarny")
+                              : m_opisSesjiPolaczenia;
+    const QString stan = m_ostatniStanPolaczenia.isEmpty()
+                             ? QString("Brak aktywnego połączenia")
+                             : m_ostatniStanPolaczenia;
+
+    const QString info = QString("%1\nStan połączenia: %2\n\nTelemetria:\nWysłano: %3\nOdebrano: %4")
+                             .arg(sesja)
+                             .arg(stan)
+                             .arg(formatujBitySieci(m_telemetriaWyslaneBajty))
+                             .arg(formatujBitySieci(m_telemetriaOdebraneBajty));
+    ui_->lblStatusPolaczenia->setText(info);
+}
+
 void MainWindow::aktualizujDostepnoscKontrolek()
 {
-    const bool isStacjonarny = (trybPracy_ == TrybPracy::Stacjonarny);
-    const bool isRegulator   = (trybPracy_ == TrybPracy::SieciowyRegulator);
-    const bool isObiekt      = (trybPracy_ == TrybPracy::SieciowyObiekt);
+    const bool trybStacjonarny = (trybPracy_ == TrybPracy::Stacjonarny);
+    const bool siecPolaczona = (polaczenieSieciowe_ && polaczenieSieciowe_->czyPolaczono());
 
+    const bool wlaczGrupySterowania = (trybPracy_ != TrybPracy::SieciowyObiekt);
+    const bool wlaczGrupeARX = (trybPracy_ != TrybPracy::SieciowyObiekt);
 
-    //nie mam pojęcia dlaczego nie widać zmiany, ale za to nie da się kliknąć także chyba git
+    ui_->grpGen->setEnabled(wlaczGrupySterowania);
+    ui_->grpPID->setEnabled(wlaczGrupySterowania);
+    ui_->grpSim->setEnabled(wlaczGrupySterowania);
+    ui_->grpFile->setEnabled(wlaczGrupySterowania);
+    ui_->grpARX->setEnabled(wlaczGrupeARX);
 
-    //blokowanie przycisków
-    ui_->grpGen->setEnabled(isStacjonarny || isRegulator);
-    ui_->grpPID->setEnabled(isStacjonarny || isRegulator);
-    ui_->grpSim->setEnabled(isStacjonarny || isRegulator);
-    ui_->grpFile->setEnabled(isStacjonarny || isRegulator);
+    const bool mozeWystartowac = trybStacjonarny || (trybPracy_ == TrybPracy::SieciowyRegulator && siecPolaczona);
+    
+    ui_->btnStart->setEnabled(mozeWystartowac);
 
-
-    ui_->grpARX->setEnabled(isStacjonarny || isObiekt);
+    ui_->btnTrybSieciowy->setEnabled(trybStacjonarny);
+    ui_->btnRozlaczSiec->setEnabled(!trybStacjonarny);
 }
 
 void MainWindow::on_btnTrybSieciowy_clicked()
 {
-    SiecDialog dlg(this);
+    SiecDialog dlg(polaczenieSieciowe_, this);
+
     if (dlg.exec() == QDialog::Accepted) {
         auto rola = dlg.pobierzRole();
         auto tryb = dlg.pobierzTrybPolaczenia();
+
         QString ip = dlg.pobierzAdresIP();
         uint16_t port = dlg.pobierzPort();
 
         if (rola == SiecDialog::RolaInstancji::Regulator) {
             trybPracy_ = TrybPracy::SieciowyRegulator;
+            uslugi_.ustawTrybPracy(ProstyUAR::TrybPracy::SieciowyRegulator);
         } else {
             trybPracy_ = TrybPracy::SieciowyObiekt;
+            uslugi_.ustawTrybPracy(ProstyUAR::TrybPracy::SieciowyObiekt);
         }
 
+        wyzerujStanSieci();
+        m_odebranoRamkeZWatchdoga = true; // zeby od razu nie wybalac bledu
+        
         aktualizujDostepnoscKontrolek();
 
-        // Aktualizacja etykiety informacyjnej
-        QString info = QString("Połączono: %1 | %2:%3")
-                           .arg(rola == SiecDialog::RolaInstancji::Regulator ? "Regulator" : "Obiekt")
-                           .arg(tryb == SiecDialog::TrybPolaczenia::Serwer ? "Serwer (nasłuchuje)" : ip)
-                           .arg(port);
-        ui_->lblStatusPolaczenia->setText(info);
+        m_opisSesjiPolaczenia = QString("Tryb sieciowy: %1")
+                        .arg(opisRoliSieciowej(rola));
+        m_ostatniStanPolaczenia = opisTrybuPolaczenia(tryb, ip, port);
+        odswiezTelemetryPolaczenia();
 
-        // TODO: Wywołanie metody z warstwy Usług do fizycznego otwarcia portów / połączenia TCP
+        if (rola == SiecDialog::RolaInstancji::Regulator &&
+            polaczenieSieciowe_ && polaczenieSieciowe_->czyPolaczono()) {
+            wyslijBiezacaKonfiguracjeSieciowa();
+        }
+
     }
 }
 
-void MainWindow::ustawStatusWydajnosci(bool wyrabiaSie)
+void MainWindow::on_btnRozlaczSiec_clicked()
 {
-    if (wyrabiaSie) {
-        ui_->lblStatusWydajnosci->setText("🟢 Symulacja wyrabia");
+    if (trybPracy_ == TrybPracy::Stacjonarny) {
+        return;
+    }
+
+    if (QMessageBox::question(this,
+                              "Przejście do trybu stacjonarnego",
+                              "Czy na pewno chcesz zakończyć pracę sieciową i przejść do trybu stacjonarnego?",
+                              QMessageBox::Yes | QMessageBox::No,
+                              QMessageBox::No) != QMessageBox::Yes) {
+        return;
+    }
+
+    if (polaczenieSieciowe_) {
+        polaczenieSieciowe_->rozlacz();
+    }
+
+    uslugi_.ustawTrybPracy(ProstyUAR::TrybPracy::Stacjonarny);
+    trybPracy_ = TrybPracy::Stacjonarny;
+
+    wyzerujStanSieci();
+
+    m_opisSesjiPolaczenia = "Tryb: Stacjonarny";
+    m_ostatniStanPolaczenia = "Ręczne rozłączenie";
+    odswiezTelemetryPolaczenia();
+    ui_->lblStatusWydajnosci->setText("🟢 Symulacja wyrabia");
+    ui_->lblStatusWydajnosci->setStyleSheet("color: green; font-weight: bold;");
+
+    aktualizujDostepnoscKontrolek();
+}
+
+void MainWindow::onTcpZdarzenie(const QString& log)
+{
+    qDebug() << "[TCP]" << log;
+}
+
+void MainWindow::onTcpStanZmieniony(const QString& stan)
+{
+    m_ostatniStanPolaczenia = stan;
+    odswiezTelemetryPolaczenia();
+    aktualizujDostepnoscKontrolek();
+
+    if (polaczenieSieciowe_ && polaczenieSieciowe_->czyPolaczono() &&
+        trybPracy_ == TrybPracy::SieciowyRegulator) {
+        wyslijBiezacaKonfiguracjeSieciowa();
+    }
+}
+
+void MainWindow::onPolaczenieUtracone(const QString& powod)
+{
+    if (trybPracy_ != TrybPracy::Stacjonarny) {
+        rozlaczSiecAWARYJNIE(powod);
+    }
+}
+
+void MainWindow::onTcpRamkaOdebrana(const QByteArray& ramka)
+{
+    m_watchdogUzbrojonyPoPierwszejRamce = true;
+    m_odebranoRamkeZWatchdoga = true;
+    m_incydentyBrakRamki = 0;
+
+    uslugi_.przetworzRamkeSieciowa(ramka);
+}
+
+void MainWindow::onTcpStatystyki(quint64 wyslane, quint64 odebrane)
+{
+    m_telemetriaWyslaneBajty = wyslane;
+    m_telemetriaOdebraneBajty = odebrane;
+
+    odswiezTelemetryPolaczenia();
+}
+
+void MainWindow::aktualizujOpoznienie(int32_t opoznienie)
+{
+    m_ostatnieOpoznienieSieci = opoznienie;
+
+    if (std::abs(opoznienie) <= 2) {
+        ui_->lblStatusWydajnosci->setText(QString("🟢 Symulacja wyrabia (Opóźń: %1)").arg(opoznienie));
         ui_->lblStatusWydajnosci->setStyleSheet("color: green; font-weight: bold;");
     } else {
-        ui_->lblStatusWydajnosci->setText("🔴 Brak synchronizacji!");
+        ui_->lblStatusWydajnosci->setText(QString("🔴 Symulacja NIE wyrabia (Opóźń: %1)").arg(opoznienie));
         ui_->lblStatusWydajnosci->setStyleSheet("color: red; font-weight: bold;");
     }
+}
+
+void MainWindow::zainicjujWatchdog()
+{
+    m_watchdogPolaczenia = new QTimer(this);
+    m_watchdogPolaczenia->setInterval(1000);
+
+    connect(m_watchdogPolaczenia, &QTimer::timeout, this, &MainWindow::onWatchdogPolaczenia);
+
+    m_watchdogPolaczenia->start();
+}
+
+void MainWindow::wyslijBiezacaKonfiguracjeSieciowa()
+{
+    if (m_trwaZdalnaSynchronizacjaKonfiguracji)
+        return;
+
+    if (trybPracy_ == TrybPracy::Stacjonarny)
+        return;
+
+    if (!polaczenieSieciowe_ || !polaczenieSieciowe_->czyPolaczono())
+        return;
+
+    const KonfiguracjaUAR cfg = uslugi_.pobierzKonfiguracje();
+    const auto ramka = ProtokolUAR::zbudujRamkeKonfiguracji(cfg);
+    polaczenieSieciowe_->wyslijRamke(
+        QByteArray(reinterpret_cast<const char*>(ramka.data()), static_cast<int>(ramka.size())));
+}
+
+void MainWindow::onWatchdogPolaczenia()
+{
+    if (trybPracy_ == TrybPracy::Stacjonarny) {
+        return;
+    }
+
+    if (!polaczenieSieciowe_ || !polaczenieSieciowe_->czyPolaczono() || !uslugi_.czyUruchomiona()) {
+        // Jeśli nie jesteśmy w pełni połączeni (np serwer czeka na klienta)
+        m_odebranoRamkeZWatchdoga = true; 
+        return;
+    }
+
+    if (!m_watchdogUzbrojonyPoPierwszejRamce) {
+        // Nie rozlaczaj przed pierwsza ramka od drugiej strony
+        m_odebranoRamkeZWatchdoga = true;
+        return;
+    }
+
+    // 1. Sprawdzenie braku ramek
+    if (!m_odebranoRamkeZWatchdoga) {
+        m_incydentyBrakRamki++;
+        qDebug() << "[WATCHDOG] Brak ramki w ostatniej sekundzie. Incydenty:" << m_incydentyBrakRamki;
+    } else {
+        m_incydentyBrakRamki = 0; 
+    }
+    m_odebranoRamkeZWatchdoga = false;
+
+    // 2. Sprawdzenie opoznienia czasowego
+    int opoznienieMS = std::abs(m_ostatnieOpoznienieSieci) * interwalMs_; // np. 100 * 200 = 20000ms
+    if (opoznienieMS >= 3000) { // jesli opoznienie powyzej 3 sekund
+        m_incydentyOpoznienia++;
+        qDebug() << "[WATCHDOG] Opóźnienie wykracza poza 3s. Incydenty:" << m_incydentyOpoznienia;
+    } else {
+        m_incydentyOpoznienia = 0; // zeruj jesli sie unormowalo
+    }
+
+    // 3. Reakcja na incydenty
+    if (m_incydentyBrakRamki > 10) {
+        rozlaczSiecAWARYJNIE("Brak odpowiedzi od drugiej strony po 10 sekundach (Time-out).");
+    } else if (m_incydentyBlednegoDekodowania >= 3) {
+        rozlaczSiecAWARYJNIE("Zbyt wiele uszkodzonych/błędnych ramek (Błąd protokołu).");
+    } else if (m_incydentyOpoznienia >= 5) {
+        rozlaczSiecAWARYJNIE("Maksymalne dopuszczalne opóźnienie symulacji (pow. 3s) zostało przekroczone przez minimum 5 sekund.");
+    }
+}
+
+void MainWindow::rozlaczSiecAWARYJNIE(const QString& powod)
+{
+    if (trybPracy_ == TrybPracy::Stacjonarny || m_trwaAwaryjneRozlaczenie) {
+        return;
+    }
+    m_trwaAwaryjneRozlaczenie = true;
+
+    qWarning() << "[WATCHDOG] AWARYJNE ROZŁĄCZENIE:" << powod;
+
+    wyzerujStanSieci();
+    
+    if (polaczenieSieciowe_) {
+        polaczenieSieciowe_->rozlacz();
+    }
+    
+    uslugi_.ustawTrybPracy(ProstyUAR::TrybPracy::Stacjonarny);
+    trybPracy_ = TrybPracy::Stacjonarny;
+    aktualizujDostepnoscKontrolek();
+    
+    // Powiadom uzyszkodnika komunikatem / wyzeruj status
+    m_opisSesjiPolaczenia = "Tryb: Stacjonarny";
+    m_ostatniStanPolaczenia = "Awaryjne rozłączenie: " + powod;
+    odswiezTelemetryPolaczenia();
+    QMessageBox::warning(this, "Problem sieciowy", 
+                         "Połączenie sieciowe zostało awaryjnie przerwane.\nPowód: " + powod + 
+                         "\n\nProgram przeszedł samoczynnie w tryb lokalny.");
+    m_trwaAwaryjneRozlaczenie = false;
+}
+
+
+void MainWindow::on_btnResetI_clicked()
+{
+
 }
 

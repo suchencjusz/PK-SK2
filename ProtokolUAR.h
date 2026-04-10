@@ -12,6 +12,22 @@ enum TypWiadomosci : uint8_t
     ProbkaSymulacji = 3
 };
 
+enum class RolaInstancjiSieciowej : uint8_t
+{
+    Nieznana = 0,
+    Regulator = 1,
+    Obiekt = 2
+};
+
+// Bitmaska jednorazowych komend dolaczanych do PakietSterowania.
+// Pozwala przeslac kilka komend naraz w jednym pakiecie (np. reset I i reset D).
+enum FlagiSterowaniaSieciowego : uint8_t
+{
+    SterowanieBrak = 0,          // 00000000
+    SterowanieResetI = 1u << 0,  // 00000001
+    SterowanieResetD = 1u << 1   // 00000010
+};
+
 // wylaczenie wyrownywania pamieci na potrzeby binarnych ramek sieciowych
 #pragma pack(push, 1)
 struct Naglowek
@@ -24,6 +40,7 @@ struct Naglowek
 #pragma pack(push, 1)
 struct PakietProbkiSymulacji
 {
+    RolaInstancjiSieciowej rolaNadawcy = RolaInstancjiSieciowej::Nieznana;
     uint64_t krok = 0;
     double t = 0.0;
     double w = 0.0;
@@ -32,11 +49,15 @@ struct PakietProbkiSymulacji
 
 struct PakietSterowania
 {
+    RolaInstancjiSieciowej rolaNadawcy = RolaInstancjiSieciowej::Nieznana;
     uint64_t krok = 0;
     double u = 0.0;
+    double w = 0.0; // Dodane zeby przesylac W
     double uP = 0.0;
     double uI = 0.0;
     double uD = 0.0;
+    // OR bitowy flag z FlagiSterowaniaSieciowego.
+    uint8_t flagiSterowania = SterowanieBrak;
 };
 #pragma pack(pop)
 

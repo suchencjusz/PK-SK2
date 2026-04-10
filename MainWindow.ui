@@ -79,14 +79,14 @@
     </item>
     <item>
      <widget class="QScrollArea" name="settingsScroll">
+      <property name="styleSheet">
+       <string>QScrollBar:vertical { width: 12px; margin: 0px; }QScrollBar::handle:vertical { background: #555; min-height: 20px; border-radius: 6px; }QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; }</string>
+      </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
-      </property>
-      <property name="styleSheet">
-       <string>QScrollBar:vertical { width: 12px; margin: 0px; }QScrollBar::handle:vertical { background: #555; min-height: 20px; border-radius: 6px; }QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; }</string>
       </property>
       <property name="widgetResizable">
        <bool>true</bool>
@@ -96,8 +96,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1358</width>
-         <height>897</height>
+         <width>678</width>
+         <height>967</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="settingsLayout">
@@ -154,22 +154,22 @@
             <number>6</number>
            </property>
            <item row="0" column="0" colspan="2">
-           <layout class="QHBoxLayout" name="laySimButtons">
-            <property name="spacing">
-             <number>2</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
+            <layout class="QHBoxLayout" name="laySimButtons">
+             <property name="spacing">
+              <number>2</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QPushButton" name="btnStart">
                <property name="sizePolicy">
@@ -178,13 +178,13 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-              <property name="text">
-               <string>START</string>
-              </property>
-              <property name="styleSheet">
-               <string>background-color: #014325; font-weight: bold;</string>
-              </property>
-             </widget>
+               <property name="styleSheet">
+                <string>background-color: #014325; font-weight: bold;</string>
+               </property>
+               <property name="text">
+                <string>START</string>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QPushButton" name="btnStop">
@@ -194,13 +194,13 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-              <property name="text">
-               <string>STOP</string>
-              </property>
-              <property name="styleSheet">
-               <string>background-color: #500000; font-weight: bold;</string>
-              </property>
-             </widget>
+               <property name="styleSheet">
+                <string>background-color: #500000; font-weight: bold;</string>
+               </property>
+               <property name="text">
+                <string>STOP</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
@@ -212,11 +212,11 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="text">
-              <string>RESET</string>
-             </property>
              <property name="styleSheet">
               <string>background-color: #8C4C1F; font-weight: bold;</string>
+             </property>
+             <property name="text">
+              <string>RESET</string>
              </property>
             </widget>
            </item>
@@ -228,19 +228,19 @@
             </widget>
            </item>
            <item row="2" column="1">
-           <widget class="QSpinBox" name="spinInterwal">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
+            <widget class="QSpinBox" name="spinInterwal">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="suffix">
               <string> ms</string>
              </property>
@@ -263,22 +263,22 @@
             </widget>
            </item>
            <item row="3" column="1">
-           <widget class="QSpinBox" name="spinOkno">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="keyboardTracking">
-             <bool>false</bool>
-            </property>
+            <widget class="QSpinBox" name="spinOkno">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="keyboardTracking">
+              <bool>false</bool>
+             </property>
              <property name="suffix">
               <string> s</string>
              </property>
@@ -309,28 +309,28 @@
              </property>
             </widget>
            </item>
-      <item row="0" column="1">
-       <widget class="QLCDNumber" name="lcdW">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="digitCount">
-         <number>5</number>
-        </property>
-        <property name="smallDecimalPoint">
-         <bool>true</bool>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-        <property name="styleSheet">
-         <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
-        </property>
-       </widget>
-      </item>
+           <item row="0" column="1">
+            <widget class="QLCDNumber" name="lcdW">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
+             </property>
+             <property name="smallDecimalPoint">
+              <bool>true</bool>
+             </property>
+             <property name="digitCount">
+              <number>5</number>
+             </property>
+             <property name="segmentStyle">
+              <enum>QLCDNumber::Flat</enum>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="2">
             <widget class="QLabel" name="lblY">
              <property name="text">
@@ -338,28 +338,28 @@
              </property>
             </widget>
            </item>
-      <item row="0" column="3">
-       <widget class="QLCDNumber" name="lcdY">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="digitCount">
-         <number>5</number>
-        </property>
-        <property name="smallDecimalPoint">
-         <bool>true</bool>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-        <property name="styleSheet">
-         <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
-        </property>
-       </widget>
-      </item>
+           <item row="0" column="3">
+            <widget class="QLCDNumber" name="lcdY">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
+             </property>
+             <property name="smallDecimalPoint">
+              <bool>true</bool>
+             </property>
+             <property name="digitCount">
+              <number>5</number>
+             </property>
+             <property name="segmentStyle">
+              <enum>QLCDNumber::Flat</enum>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="0">
             <widget class="QLabel" name="lblE">
              <property name="text">
@@ -367,28 +367,28 @@
              </property>
             </widget>
            </item>
-      <item row="1" column="1">
-       <widget class="QLCDNumber" name="lcdE">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="digitCount">
-         <number>5</number>
-        </property>
-        <property name="smallDecimalPoint">
-         <bool>true</bool>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-        <property name="styleSheet">
-         <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
-        </property>
-       </widget>
-      </item>
+           <item row="1" column="1">
+            <widget class="QLCDNumber" name="lcdE">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
+             </property>
+             <property name="smallDecimalPoint">
+              <bool>true</bool>
+             </property>
+             <property name="digitCount">
+              <number>5</number>
+             </property>
+             <property name="segmentStyle">
+              <enum>QLCDNumber::Flat</enum>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="2">
             <widget class="QLabel" name="lblU">
              <property name="text">
@@ -396,28 +396,28 @@
              </property>
             </widget>
            </item>
-      <item row="1" column="3">
-       <widget class="QLCDNumber" name="lcdU">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="digitCount">
-         <number>5</number>
-        </property>
-        <property name="smallDecimalPoint">
-         <bool>true</bool>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-        <property name="styleSheet">
-         <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
-        </property>
-       </widget>
-      </item>
+           <item row="1" column="3">
+            <widget class="QLCDNumber" name="lcdU">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
+             </property>
+             <property name="smallDecimalPoint">
+              <bool>true</bool>
+             </property>
+             <property name="digitCount">
+              <number>5</number>
+             </property>
+             <property name="segmentStyle">
+              <enum>QLCDNumber::Flat</enum>
+             </property>
+            </widget>
+           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="lblUP">
              <property name="text">
@@ -425,28 +425,28 @@
              </property>
             </widget>
            </item>
-      <item row="2" column="1">
-       <widget class="QLCDNumber" name="lcdUP">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="digitCount">
-         <number>5</number>
-        </property>
-        <property name="smallDecimalPoint">
-         <bool>true</bool>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-        <property name="styleSheet">
-         <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
-        </property>
-       </widget>
-      </item>
+           <item row="2" column="1">
+            <widget class="QLCDNumber" name="lcdUP">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
+             </property>
+             <property name="smallDecimalPoint">
+              <bool>true</bool>
+             </property>
+             <property name="digitCount">
+              <number>5</number>
+             </property>
+             <property name="segmentStyle">
+              <enum>QLCDNumber::Flat</enum>
+             </property>
+            </widget>
+           </item>
            <item row="2" column="2">
             <widget class="QLabel" name="lblUI">
              <property name="text">
@@ -454,28 +454,28 @@
              </property>
             </widget>
            </item>
-      <item row="2" column="3">
-       <widget class="QLCDNumber" name="lcdUI">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="digitCount">
-         <number>5</number>
-        </property>
-        <property name="smallDecimalPoint">
-         <bool>true</bool>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-        <property name="styleSheet">
-         <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
-        </property>
-       </widget>
-      </item>
+           <item row="2" column="3">
+            <widget class="QLCDNumber" name="lcdUI">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
+             </property>
+             <property name="smallDecimalPoint">
+              <bool>true</bool>
+             </property>
+             <property name="digitCount">
+              <number>5</number>
+             </property>
+             <property name="segmentStyle">
+              <enum>QLCDNumber::Flat</enum>
+             </property>
+            </widget>
+           </item>
            <item row="3" column="0">
             <widget class="QLabel" name="lblUD">
              <property name="text">
@@ -483,32 +483,31 @@
              </property>
             </widget>
            </item>
-      <item row="3" column="1">
-       <widget class="QLCDNumber" name="lcdUD">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="digitCount">
-         <number>5</number>
-        </property>
-        <property name="smallDecimalPoint">
-         <bool>true</bool>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-        <property name="styleSheet">
-         <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
-        </property>
-       </widget>
-      </item>
+           <item row="3" column="1">
+            <widget class="QLCDNumber" name="lcdUD">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="styleSheet">
+              <string>background-color: black; color: #00FF00; border: 1px solid #555; border-radius: 4px; font-weight: bold;</string>
+             </property>
+             <property name="smallDecimalPoint">
+              <bool>true</bool>
+             </property>
+             <property name="digitCount">
+              <number>5</number>
+             </property>
+             <property name="segmentStyle">
+              <enum>QLCDNumber::Flat</enum>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
-
         <item>
          <widget class="QGroupBox" name="grpNetwork">
           <property name="title">
@@ -516,16 +515,38 @@
           </property>
           <layout class="QVBoxLayout" name="layNetwork">
            <item>
-            <widget class="QPushButton" name="btnTrybSieciowy">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QGroupBox" name="groupBox">
+             <property name="title">
+              <string/>
              </property>
-             <property name="text">
-              <string>Ustawienia Sieciowe</string>
-             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <widget class="QPushButton" name="btnTrybSieciowy">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Ustawienia Sieciowe</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btnRozlaczSiec">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Rozłącz sieć</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
            <item>
@@ -551,7 +572,6 @@
           </layout>
          </widget>
         </item>
-
         <item>
          <widget class="QGroupBox" name="grpARX">
           <property name="title">
@@ -606,22 +626,22 @@
             </widget>
            </item>
            <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="spinKp">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="minimum">
-             <double>0.000000000000000</double>
-            </property>
+            <widget class="QDoubleSpinBox" name="spinKp">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <double>0.000000000000000</double>
+             </property>
              <property name="maximum">
               <double>1000.000000000000000</double>
              </property>
@@ -635,22 +655,22 @@
             </widget>
            </item>
            <item row="1" column="1">
-           <widget class="QDoubleSpinBox" name="spinTi">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="minimum">
-             <double>0.000000000000000</double>
-            </property>
+            <widget class="QDoubleSpinBox" name="spinTi">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <double>0.000000000000000</double>
+             </property>
              <property name="maximum">
               <double>10000.000000000000000</double>
              </property>
@@ -664,22 +684,22 @@
             </widget>
            </item>
            <item row="2" column="1">
-           <widget class="QDoubleSpinBox" name="spinTd">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="minimum">
-             <double>0.000000000000000</double>
-            </property>
+            <widget class="QDoubleSpinBox" name="spinTd">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <double>0.000000000000000</double>
+             </property>
              <property name="maximum">
               <double>1000.000000000000000</double>
              </property>
@@ -693,22 +713,22 @@
             </widget>
            </item>
            <item row="3" column="1">
-           <widget class="QComboBox" name="comboTrybCalk">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <item>
-             <property name="text">
-              <string>Zewnętrzne</string>
+            <widget class="QComboBox" name="comboTrybCalk">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <item>
+              <property name="text">
+               <string>Zewnętrzne</string>
               </property>
              </item>
              <item>
@@ -719,22 +739,22 @@
             </widget>
            </item>
            <item row="4" column="0" colspan="2">
-           <layout class="QHBoxLayout" name="layPidReset">
-            <property name="spacing">
-             <number>2</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
+            <layout class="QHBoxLayout" name="layPidReset">
+             <property name="spacing">
+              <number>2</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QPushButton" name="btnResetI">
                <property name="sizePolicy">
@@ -798,22 +818,22 @@
             </widget>
            </item>
            <item row="0" column="1">
-           <widget class="QComboBox" name="comboGenTyp">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
+            <widget class="QComboBox" name="comboGenTyp">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <item>
-             <property name="text">
-              <string>Prostokąt</string>
+              <property name="text">
+               <string>Prostokąt</string>
               </property>
              </item>
              <item>
@@ -831,22 +851,22 @@
             </widget>
            </item>
            <item row="1" column="1">
-           <widget class="QDoubleSpinBox" name="spinGenAmpl">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="minimum">
-             <double>0.000000000000000</double>
-            </property>
+            <widget class="QDoubleSpinBox" name="spinGenAmpl">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <double>0.000000000000000</double>
+             </property>
              <property name="maximum">
               <double>1000.000000000000000</double>
              </property>
@@ -860,22 +880,22 @@
             </widget>
            </item>
            <item row="2" column="1">
-           <widget class="QDoubleSpinBox" name="spinGenOkres">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="minimum">
-             <double>0.100000000000000</double>
-            </property>
+            <widget class="QDoubleSpinBox" name="spinGenOkres">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
              <property name="maximum">
               <double>10000.000000000000000</double>
              </property>
@@ -889,22 +909,22 @@
             </widget>
            </item>
            <item row="3" column="1">
-           <widget class="QDoubleSpinBox" name="spinGenWypelnienie">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="minimum">
-             <double>0.000000000000000</double>
-            </property>
+            <widget class="QDoubleSpinBox" name="spinGenWypelnienie">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <double>0.000000000000000</double>
+             </property>
              <property name="maximum">
               <double>1.000000000000000</double>
              </property>
@@ -921,22 +941,22 @@
             </widget>
            </item>
            <item row="4" column="1">
-           <widget class="QDoubleSpinBox" name="spinGenOffset">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="minimum">
-             <double>-1000.000000000000000</double>
-            </property>
+            <widget class="QDoubleSpinBox" name="spinGenOffset">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <double>-1000.000000000000000</double>
+             </property>
              <property name="maximum">
               <double>1000.000000000000000</double>
              </property>
@@ -1008,7 +1028,7 @@
      <x>0</x>
      <y>0</y>
      <width>1400</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

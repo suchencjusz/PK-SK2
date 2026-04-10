@@ -64,11 +64,16 @@ public:
     void ustawKonfiguracje(const KonfiguracjaUAR& cfg);
     void zapiszKonfiguracjeJSON(const std::string& sciezka) const;
     void wczytajKonfiguracjeJSON(const std::string& sciezka);
-
+    // Sieć
+    void ustawTrybPracy(ProstyUAR::TrybPracy tryb);
+    void ustawSiecioweY(double y) { uar_.ustawSiecioweY(y); }
+    void ustawSiecioweU(double u) { uar_.ustawSiecioweU(u); }
+    void ustawSiecioweW(double w) { uar_.ustawSiecioweW(w); }
 signals:
     void tick();
 
 private:
+    ProstyUAR::TrybPracy tryb_ = ProstyUAR::TrybPracy::Stacjonarny;
     // Obiekty symulacji
     ModelARX                  model_;
     RegulatorPID              regulator_;

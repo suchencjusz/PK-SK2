@@ -5,10 +5,22 @@
 class ProstyUAR
 {
 public:
+    enum class TrybPracy {
+        Stacjonarny,
+        SieciowyRegulator,
+        SieciowyObiekt
+    };
+
     ProstyUAR(ModelARX& model, RegulatorPID& regulator);
 
     // Symulacja
     double symuluj(double w);
+
+    // Ustawienia sieci
+    void ustawTrybPracy(TrybPracy tryb) { tryb_ = tryb; }
+    void ustawSiecioweY(double y) { siecioweY_ = y; }
+    void ustawSiecioweU(double u) { siecioweU_ = u; }
+    void ustawSiecioweW(double w) { siecioweW_ = w; }
 
     // Reset
     void reset();
@@ -26,6 +38,11 @@ private:
     // Referencje do obiektow
     ModelARX& model_;
     RegulatorPID& regulator_;
+
+    TrybPracy tryb_ = TrybPracy::Stacjonarny;
+    double siecioweY_ = 0.0;
+    double siecioweU_ = 0.0;
+    double siecioweW_ = 0.0;
 
     // Stan
     double w_;

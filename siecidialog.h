@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QString>
 
+class PolaczenieSieciowe;
+
 namespace Ui { class SiecDialog; }
 
 class SiecDialog : public QDialog
@@ -14,7 +16,7 @@ public:
     enum class RolaInstancji { Regulator, Obiekt };
     enum class TrybPolaczenia { Klient, Serwer };
 
-    explicit SiecDialog(QWidget *parent = nullptr);
+    explicit SiecDialog(PolaczenieSieciowe* polaczenie, QWidget *parent = nullptr);
     ~SiecDialog() override;
 
     RolaInstancji pobierzRole() const;
@@ -24,9 +26,13 @@ public:
 
 private slots:
     void onZmienionoTryb(int index);
+    void onBtnPolaczClicked();
+    void onSerwerZnaleziony(const QString& ip, uint16_t port);
+    void onWybierzSerwerZListy(class QListWidgetItem* wpis);
 
 private:
     Ui::SiecDialog *ui;
+    PolaczenieSieciowe* m_polaczenie;
 };
 
 #endif // SIECIDIALOG_H

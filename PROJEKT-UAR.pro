@@ -25,7 +25,8 @@ SOURCES += \
     UslugiUAR.cpp \
     ProtokolUAR.cpp \
     siecidialog.cpp \
-    SiecKonsolaUAR.cpp
+    SiecKonsolaUAR.cpp \
+    PolaczenieSieciowe.cpp
 
 
 HEADERS += \
@@ -43,7 +44,8 @@ HEADERS += \
     Testy_Wlasne.h \
     UslugiUAR.h\
     siecidialog.h \
-    SiecKonsolaUAR.h
+    SiecKonsolaUAR.h \
+    PolaczenieSieciowe.h
 
 
 FORMS += \
