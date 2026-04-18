@@ -1,32 +1,6 @@
 ﻿#include "RegulatorPID.h"
 
-RegulatorPID::RegulatorPID(double k)
-    : kP_(k)
-    , Ti_(0.0)
-    , Td_(0.0)
-    , uP_(0.0)
-    , uI_(0.0)
-    , uD_(0.0)
-    , ePrev_(0.0)
-    , sumE_(0.0)
-    , trybCalk_(LiczCalk::Zewnetrzne)
-{
-}
-
-RegulatorPID::RegulatorPID(double k, double Ti)
-    : kP_(k)
-    , Ti_(Ti)
-    , Td_(0.0)
-    , uP_(0.0)
-    , uI_(0.0)
-    , uD_(0.0)
-    , ePrev_(0.0)
-    , sumE_(0.0)
-    , trybCalk_(LiczCalk::Zewnetrzne)
-{
-}
-
-RegulatorPID::RegulatorPID(double k, double Ti, double Td)
+RegulatorPID::RegulatorPID(double k, double Ti = 0.0, double Td = 0.0)
     : kP_(k)
     , Ti_(Ti)
     , Td_(Td)

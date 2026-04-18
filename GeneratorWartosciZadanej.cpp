@@ -1,10 +1,6 @@
 ﻿#include "GeneratorWartosciZadanej.h"
+#include "qmath.h"
 #include <cmath>
-
-namespace
-{
-    constexpr double PI = 3.14159265358979323846;
-}
 
 GeneratorWartosciZadanej::GeneratorWartosciZadanej()
     : typ_(Typ::Sinus)
@@ -94,7 +90,7 @@ double GeneratorWartosciZadanej::generuj(std::size_t i) const
     {
     case Typ::Sinus:
     {
-        const double arg = static_cast<double>(idx) * 2.0 * PI / static_cast<double>(T);
+        const double arg = static_cast<double>(idx) * 2.0 * M_PI / static_cast<double>(T);
         const double w = A_ * std::sin(arg) + S_;
         return w;
     }
