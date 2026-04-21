@@ -614,7 +614,8 @@ void MainWindow::aktualizujDostepnoscKontrolek()
     const bool siecPolaczona = (polaczenieSieciowe_ && polaczenieSieciowe_->czyPolaczono());
 
     const bool wlaczGrupySterowania = (trybPracy_ != TrybPracy::SieciowyObiekt);
-    const bool wlaczGrupeARX = (trybPracy_ != TrybPracy::SieciowyObiekt);
+    // const bool wlaczGrupeARX = (trybPracy_ != TrybPracy::SieciowyObiekt);
+    const bool wlaczGrupeARX = (trybPracy_ != TrybPracy::SieciowyRegulator);
 
     ui_->grpGen->setEnabled(wlaczGrupySterowania);
     ui_->grpPID->setEnabled(wlaczGrupySterowania);
