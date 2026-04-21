@@ -72,7 +72,7 @@ private:
     std::normal_distribution<double> normal_;
 
     // Pomocnicze
-    static double clamp(double v, double vmin, double vmax);
+    // static double clamp(double v, double vmin, double vmax);
     double losujNormalny();
 };
 

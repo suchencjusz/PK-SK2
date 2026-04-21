@@ -5,12 +5,12 @@
 #include <numeric>
 
 // Pomocnicze
-double ModelARX::clamp(double v, double vmin, double vmax)
-{
-    if (v < vmin) return vmin;
-    if (v > vmax) return vmax;
-    return v;
-}
+// double ModelARX::clamp(double v, double vmin, double vmax)
+// {
+//     if (v < vmin) return vmin;
+//     if (v > vmax) return vmax;
+//     return v;
+// }
 
 double ModelARX::losujNormalny()
 {
@@ -44,7 +44,7 @@ ModelARX::ModelARX(std::initializer_list<double> A,
 // Symulacja
 double ModelARX::symuluj(double u)
 {
-    const double uWe = ograniczU_ ? clamp(u, uMin_, uMax_) : u;
+    const double uWe = ograniczU_ ? std::clamp(u, uMin_, uMax_) : u;
 
     uHist_.push_front(uWe);
     const std::size_t docelowyRozmiarU =
@@ -76,7 +76,8 @@ double ModelARX::symuluj(double u)
         y += sigma_ * losujNormalny();
     }
 
-    double yWe = ograniczY_ ? clamp(y, yMin_, yMax_) : y;
+    // double yWe = ograniczY_ ? clamp(y, yMin_, yMax_) : y;
+    double yWe = ograniczY_ ? std::clamp(y, yMin_, yMax_) : y;
 
     if (!yHist_.empty())
     {
