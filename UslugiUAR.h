@@ -64,6 +64,8 @@ public:
         trybPracy_ = tryb;
         sym_.ustawTrybPracy(tryb);
         m_krokSieciowySymulacji = 0;
+        m_ostatniKrokProbkiSieciowej = 0;
+        m_nadeszlaNowaProbkaSieciowa = false;
 
         if (trybPracy_ != ProstyUAR::TrybPracy::SieciowyRegulator) {
             m_oczekujeResetuI = false;
@@ -104,6 +106,8 @@ private:
 
     ProstyUAR::TrybPracy trybPracy_ = ProstyUAR::TrybPracy::Stacjonarny;
     uint64_t m_krokSieciowySymulacji = 0;
+    uint64_t m_ostatniKrokProbkiSieciowej = 0;
+    bool m_nadeszlaNowaProbkaSieciowa = false;
     bool m_oczekujeResetuI = false;
     bool m_oczekujeResetuD = false;
 

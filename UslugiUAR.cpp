@@ -30,6 +30,8 @@ void UslugiUAR::reset()
     sym_.reset();
     ostatniaProbka_ = ProbkaUAR{ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     m_krokSieciowySymulacji = 0;
+    m_ostatniKrokProbkiSieciowej = 0;
+    m_nadeszlaNowaProbkaSieciowa = false;
     m_oczekujeResetuI = false;
     m_oczekujeResetuD = false;
 }
@@ -126,6 +128,15 @@ void UslugiUAR::onTimerTick()
 {
     if (!sym_.czyUruchomiona())
         return;
+
+    if (trybPracy_ == ProstyUAR::TrybPracy::SieciowyRegulator) {
+        // Po kroku startowym kolejne kroki regulatora wykonujemy
+        // tylko wtedy, gdy doszla nowa probka obiektu.
+        if (m_krokSieciowySymulacji > 0 && !m_nadeszlaNowaProbkaSieciowa)
+            return;
+
+        m_nadeszlaNowaProbkaSieciowa = false;
+    }
 
     wykonajKrok();
 }
@@ -347,8 +358,8 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
         return;
     }
 
-    if (pakiet.krok < m_krokSieciowySymulacji) {
-        // Stara probka - ignorujemy, aby nie cofasc regulatora.
+    if (pakiet.krok <= m_ostatniKrokProbkiSieciowej) {
+        // Stara/duplikowana probka - ignorujemy, aby nie robic jitteru.
         return;
     }
 
@@ -358,9 +369,8 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
     int32_t opoznienie = m_krokSieciowySymulacji - pakiet.krok;
     emit opoznienieWyliczone(opoznienie);
 
-    // Synchronizujemy krok. Kolejny krok regulatora wykona sie
-    // w rytmie timera (TTms), aby nie przyspieszac symulacji.
-    m_krokSieciowySymulacji = pakiet.krok;
+    m_ostatniKrokProbkiSieciowej = pakiet.krok;
+    m_nadeszlaNowaProbkaSieciowa = true;
 }
 
 
