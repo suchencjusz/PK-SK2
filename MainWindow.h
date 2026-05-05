@@ -4,6 +4,7 @@
 #include "qcustomplot.h"
 #include "PolaczenieSieciowe.h"
 #include <QTimer>
+#include <deque>
 
 namespace Ui { class MainWindow; }
 class QDoubleSpinBox;
@@ -114,6 +115,8 @@ private:
     PolaczenieSieciowe* polaczenieSieciowe_ = nullptr;
 
     int32_t m_ostatnieOpoznienieSieci = 0;
+    std::deque<int32_t> m_delayWindow;
+    int m_delayWindowSize = 5;
 
     QTimer* m_watchdogPolaczenia = nullptr;
     int m_incydentyOpoznienia = 0;

@@ -743,14 +743,28 @@ void MainWindow::onTcpStatystyki(quint64 wyslane, quint64 odebrane)
 
 void MainWindow::aktualizujOpoznienie(int32_t opoznienie)
 {
-    m_ostatnieOpoznienieSieci = opoznienie;
+    // Push new sample into sliding window and compute median to reduce jitter
+    if (m_delayWindowSize <= 0) m_delayWindowSize = 5;
+    m_delayWindow.push_back(opoznienie);
+    while (static_cast<int>(m_delayWindow.size()) > m_delayWindowSize)
+        m_delayWindow.pop_front();
+
+    // compute median
+    std::vector<int32_t> copy(m_delayWindow.begin(), m_delayWindow.end());
+    std::sort(copy.begin(), copy.end());
+    int32_t median = 0;
+    if (!copy.empty()) {
+        median = copy[copy.size()/2];
+    }
+
+    m_ostatnieOpoznienieSieci = median;
 
     const int32_t thresh = interwalMs_;
-    if (std::abs(opoznienie) <= thresh) {
-        ui_->lblStatusWydajnosci->setText(QString("🟢 Symulacja wyrabia (Opóźń: %1 ms)").arg(opoznienie));
+    if (std::abs(median) <= thresh) {
+        ui_->lblStatusWydajnosci->setText(QString("🟢 Symulacja wyrabia (Opóźń: %1 ms)").arg(median));
         ui_->lblStatusWydajnosci->setStyleSheet("color: green; font-weight: bold;");
     } else {
-        ui_->lblStatusWydajnosci->setText(QString("🔴 Symulacja NIE wyrabia (Opóźń: %1 ms)").arg(opoznienie));
+        ui_->lblStatusWydajnosci->setText(QString("🔴 Symulacja NIE wyrabia (Opóźń: %1 ms)").arg(median));
         ui_->lblStatusWydajnosci->setStyleSheet("color: red; font-weight: bold;");
     }
 }
