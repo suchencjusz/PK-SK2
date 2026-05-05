@@ -744,7 +744,7 @@ void MainWindow::onTcpStatystyki(quint64 wyslane, quint64 odebrane)
 void MainWindow::aktualizujOpoznienie(int32_t opoznienie)
 {
     // Push new sample into sliding window and compute median to reduce jitter
-    if (m_delayWindowSize <= 0) m_delayWindowSize = 5;
+    if (m_delayWindowSize <= 0) m_delayWindowSize = 20;
     m_delayWindow.push_back(opoznienie);
     while (static_cast<int>(m_delayWindow.size()) > m_delayWindowSize)
         m_delayWindow.pop_front();
@@ -756,6 +756,7 @@ void MainWindow::aktualizujOpoznienie(int32_t opoznienie)
     if (!copy.empty()) {
         median = copy[copy.size()/2];
     }
+    qDebug() << "Mediana: " << median;
 
     m_ostatnieOpoznienieSieci = median;
 
@@ -825,7 +826,7 @@ void MainWindow::onWatchdogPolaczenia()
 
     // 2. Sprawdzenie opoznienia czasowego
     int opoznienieMS = std::abs(m_ostatnieOpoznienieSieci); // already in ms
-    if (opoznienieMS >= 3000) { // jesli opoznienie powyzej 3 sekund
+    if (opoznienieMS >= 15) { // jesli opoznienie powyzej 3 sekund
         m_incydentyOpoznienia++;
         qDebug() << "[WATCHDOG] Opóźnienie wykracza poza 3s. Incydenty:" << m_incydentyOpoznienia;
     } else {

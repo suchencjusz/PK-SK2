@@ -116,7 +116,7 @@ private:
 
     int32_t m_ostatnieOpoznienieSieci = 0;
     std::deque<int32_t> m_delayWindow;
-    int m_delayWindowSize = 5;
+    int m_delayWindowSize = 20;
 
     QTimer* m_watchdogPolaczenia = nullptr;
     int m_incydentyOpoznienia = 0;
