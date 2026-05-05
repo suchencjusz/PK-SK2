@@ -72,7 +72,8 @@ void SymulacjaUAR::ustawOknoObserwacjiS(int oknoS)
 void SymulacjaUAR::start()
 {
     uruchomiona_ = true;
-    if (tryb_ == ProstyUAR::TrybPracy::SieciowyObiekt) {
+    if (tryb_ == ProstyUAR::TrybPracy::SieciowyObiekt ||
+        tryb_ == ProstyUAR::TrybPracy::SieciowyRegulator) {
         timer_->stop();
     } else {
         timer_->start();
@@ -90,8 +91,11 @@ void SymulacjaUAR::ustawTrybPracy(ProstyUAR::TrybPracy tryb)
     tryb_ = tryb;
     uar_.ustawTrybPracy(tryb);
 
-    if (tryb_ == ProstyUAR::TrybPracy::SieciowyObiekt) {
-        timer_->stop(); // Takty dyktuje regulator, wiec my przestajemy uzywac naszego zegara
+    if (tryb_ == ProstyUAR::TrybPracy::SieciowyObiekt ||
+        tryb_ == ProstyUAR::TrybPracy::SieciowyRegulator) {
+        // W trybie sieciowym takty dyktuje wymiana ramek,
+        // wiec przestajemy uzywac lokalnego zegara.
+        timer_->stop();
     } else if (uruchomiona_) {
         timer_->start(); // Jeśli stacjonalnie/regulator, wracamy do taktowania wlasnym zegarem
     }

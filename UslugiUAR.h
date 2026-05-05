@@ -63,6 +63,7 @@ public:
     {
         trybPracy_ = tryb;
         sym_.ustawTrybPracy(tryb);
+        m_krokSieciowySymulacji = 0;
 
         if (trybPracy_ != ProstyUAR::TrybPracy::SieciowyRegulator) {
             m_oczekujeResetuI = false;

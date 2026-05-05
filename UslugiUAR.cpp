@@ -12,6 +12,12 @@ UslugiUAR::UslugiUAR(QObject* parent)
 void UslugiUAR::start()
 {
     sym_.start();
+
+    // W trybie regulatora sieciowego pierwszy krok wysylamy od razu,
+    // aby uruchomic obiekt po drugiej stronie.
+    if (trybPracy_ == ProstyUAR::TrybPracy::SieciowyRegulator) {
+        wykonajKrok();
+    }
 }
 
 void UslugiUAR::stop()
@@ -23,6 +29,7 @@ void UslugiUAR::reset()
 {
     sym_.reset();
     ostatniaProbka_ = ProbkaUAR{ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    m_krokSieciowySymulacji = 0;
     m_oczekujeResetuI = false;
     m_oczekujeResetuD = false;
 }
@@ -118,6 +125,11 @@ ProbkaUAR UslugiUAR::wykonajKrok()
 void UslugiUAR::onTimerTick()
 {
     if (!sym_.czyUruchomiona())
+        return;
+
+    // Regulator sieciowy jest taktowany odebrana probka z obiektu,
+    // a nie lokalnym timerem.
+    if (trybPracy_ == ProstyUAR::TrybPracy::SieciowyRegulator)
         return;
 
     wykonajKrok();
@@ -323,12 +335,14 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
         if ((pakiet.flagiSterowania & SterowanieResetD) != 0)
             sym_.regulator().resetRozniczkowania();
 
-        const bool nowyKrok = (pakiet.krok != m_krokSieciowySymulacji);
+        const bool nowyKrok = (pakiet.krok > m_krokSieciowySymulacji);
+        if (!nowyKrok)
+            return;
+
         m_krokSieciowySymulacji = pakiet.krok;
 
         // Uruchamiamy krok tylko dla nowej probki sterowania.
-        if (nowyKrok)
-            naPojedynczyKrokSieciowyObiektu();
+        naPojedynczyKrokSieciowyObiektu();
         return;
     }
 
@@ -338,11 +352,22 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
         return;
     }
 
+    if (pakiet.krok < m_krokSieciowySymulacji) {
+        // Stara probka - ignorujemy, aby nie cofasc regulatora.
+        return;
+    }
+
     ustawSiecioweY(pakiet.y);
 
     // Opoznienie informacyjne (dla UI/wykresow)
     int32_t opoznienie = m_krokSieciowySymulacji - pakiet.krok;
     emit opoznienieWyliczone(opoznienie);
+
+    // Synchronizujemy krok i wykonujemy nastepny krok regulatora
+    // dokladnie po odebraniu nowej probki obiektu.
+    m_krokSieciowySymulacji = pakiet.krok;
+    if (sym_.czyUruchomiona())
+        wykonajKrok();
 }
 
 
