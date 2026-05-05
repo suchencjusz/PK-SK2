@@ -1,5 +1,6 @@
 ﻿#include "UslugiUAR.h"
 #include "ProtokolUAR.h"
+#include <QDateTime>
 
 UslugiUAR::UslugiUAR(QObject* parent)
     : QObject(parent)
@@ -32,6 +33,7 @@ void UslugiUAR::reset()
     m_krokSieciowySymulacji = 0;
     m_ostatniKrokProbkiSieciowej = 0;
     m_nadeszlaNowaProbkaSieciowa = false;
+    m_lastReceiveTimeMs = 0;
     m_oczekujeResetuI = false;
     m_oczekujeResetuD = false;
 }
@@ -365,9 +367,19 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
 
     ustawSiecioweY(pakiet.y);
 
-    // Opoznienie informacyjne (dla UI/wykresow)
-    int32_t opoznienie = m_krokSieciowySymulacji - pakiet.krok;
-    emit opoznienieWyliczone(opoznienie);
+    // Mierzymy rzeczywisty interwał przychodzenia ramek i porownujemy
+    // z oczekiwanym interwalem symulacji (TTms). Emitujemy opoznienie w ms.
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    int32_t delayMs = 0;
+    if (m_lastReceiveTimeMs > 0) {
+        const qint64 interArrival = nowMs - m_lastReceiveTimeMs;
+        const int expected = sym_.pobierzInterwalSymulacjiMs();
+        delayMs = static_cast<int32_t>(interArrival - static_cast<qint64>(expected));
+    }
+    m_lastReceiveTimeMs = nowMs;
+
+    // Emitujemy opoznienie w milisekundach (dodatnie => przyjscie mniej czesto niz oczekiwane)
+    emit opoznienieWyliczone(delayMs);
 
     m_ostatniKrokProbkiSieciowej = pakiet.krok;
     m_nadeszlaNowaProbkaSieciowa = true;

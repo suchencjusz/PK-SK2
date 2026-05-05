@@ -108,6 +108,7 @@ private:
     uint64_t m_krokSieciowySymulacji = 0;
     uint64_t m_ostatniKrokProbkiSieciowej = 0;
     bool m_nadeszlaNowaProbkaSieciowa = false;
+    qint64 m_lastReceiveTimeMs = 0;
     bool m_oczekujeResetuI = false;
     bool m_oczekujeResetuD = false;
 

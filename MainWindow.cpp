@@ -745,11 +745,12 @@ void MainWindow::aktualizujOpoznienie(int32_t opoznienie)
 {
     m_ostatnieOpoznienieSieci = opoznienie;
 
-    if (std::abs(opoznienie) <= 2) {
-        ui_->lblStatusWydajnosci->setText(QString("🟢 Symulacja wyrabia (Opóźń: %1)").arg(opoznienie));
+    const int32_t thresh = interwalMs_;
+    if (std::abs(opoznienie) <= thresh) {
+        ui_->lblStatusWydajnosci->setText(QString("🟢 Symulacja wyrabia (Opóźń: %1 ms)").arg(opoznienie));
         ui_->lblStatusWydajnosci->setStyleSheet("color: green; font-weight: bold;");
     } else {
-        ui_->lblStatusWydajnosci->setText(QString("🔴 Symulacja NIE wyrabia (Opóźń: %1)").arg(opoznienie));
+        ui_->lblStatusWydajnosci->setText(QString("🔴 Symulacja NIE wyrabia (Opóźń: %1 ms)").arg(opoznienie));
         ui_->lblStatusWydajnosci->setStyleSheet("color: red; font-weight: bold;");
     }
 }
@@ -809,7 +810,7 @@ void MainWindow::onWatchdogPolaczenia()
     m_odebranoRamkeZWatchdoga = false;
 
     // 2. Sprawdzenie opoznienia czasowego
-    int opoznienieMS = std::abs(m_ostatnieOpoznienieSieci) * interwalMs_; // np. 100 * 200 = 20000ms
+    int opoznienieMS = std::abs(m_ostatnieOpoznienieSieci); // already in ms
     if (opoznienieMS >= 3000) { // jesli opoznienie powyzej 3 sekund
         m_incydentyOpoznienia++;
         qDebug() << "[WATCHDOG] Opóźnienie wykracza poza 3s. Incydenty:" << m_incydentyOpoznienia;
