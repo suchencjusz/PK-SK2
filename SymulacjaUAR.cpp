@@ -16,6 +16,7 @@ SymulacjaUAR::SymulacjaUAR(QObject* parent)
 {
     // Symulacja (czas + timer)
     generator_.ustawInterwalSymulacjiMs(TTms_);
+    timer_->setTimerType(Qt::PreciseTimer);
     timer_->setInterval(TTms_);
     connect(timer_, &QTimer::timeout, this, &SymulacjaUAR::tick);
 
