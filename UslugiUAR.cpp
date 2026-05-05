@@ -127,11 +127,6 @@ void UslugiUAR::onTimerTick()
     if (!sym_.czyUruchomiona())
         return;
 
-    // Regulator sieciowy jest taktowany odebrana probka z obiektu,
-    // a nie lokalnym timerem.
-    if (trybPracy_ == ProstyUAR::TrybPracy::SieciowyRegulator)
-        return;
-
     wykonajKrok();
 }
 
@@ -363,11 +358,9 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
     int32_t opoznienie = m_krokSieciowySymulacji - pakiet.krok;
     emit opoznienieWyliczone(opoznienie);
 
-    // Synchronizujemy krok i wykonujemy nastepny krok regulatora
-    // dokladnie po odebraniu nowej probki obiektu.
+    // Synchronizujemy krok. Kolejny krok regulatora wykona sie
+    // w rytmie timera (TTms), aby nie przyspieszac symulacji.
     m_krokSieciowySymulacji = pakiet.krok;
-    if (sym_.czyUruchomiona())
-        wykonajKrok();
 }
 
 
