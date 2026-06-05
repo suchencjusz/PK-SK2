@@ -915,6 +915,10 @@ void MainWindow::rozlaczSiecAWARYJNIE(const QString& powod)
     
     uslugi_.ustawTrybPracy(ProstyUAR::TrybPracy::Stacjonarny);
     trybPracy_ = TrybPracy::Stacjonarny;
+    // Przy awaryjnym rozłączeniu przywróć widoczność i wyczyść wykresy
+    ustawWidocznoscWykresowDlaTrybu();
+    wyczyscWykresy();
+    wyzerujWyswietlacze();
     aktualizujDostepnoscKontrolek();
     
     // Powiadom uzyszkodnika komunikatem / wyzeruj status
