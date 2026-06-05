@@ -115,6 +115,7 @@ private:
     qint64 m_lastReceiveTimeMs = 0;
     bool m_oczekujeResetuI = false;
     bool m_oczekujeResetuD = false;
+    bool m_oczekujeStartuSieciowego = false;
 
     ProbkaUAR ostatniaProbka_{ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 };

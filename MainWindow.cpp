@@ -432,11 +432,12 @@ void MainWindow::onBtnStart()
     m_watchdogUzbrojonyPoPierwszejRamce = false;
     m_odebranoRamkeZWatchdoga = true;
     m_incydentyBrakRamki = 0;
-    uslugi_.start();
 
     if (trybPracy_ == TrybPracy::SieciowyRegulator) {
         uslugi_.startSymulacjiSieciowej();
     }
+
+    uslugi_.start();
 }
 
 void MainWindow::onBtnStop()

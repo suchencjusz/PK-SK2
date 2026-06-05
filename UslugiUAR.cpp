@@ -36,6 +36,7 @@ void UslugiUAR::reset()
     m_lastReceiveTimeMs = 0;
     m_oczekujeResetuI = false;
     m_oczekujeResetuD = false;
+    m_oczekujeStartuSieciowego = false;
 }
 
 // Stan symulacji
@@ -96,12 +97,15 @@ ProbkaUAR UslugiUAR::wykonajKrok()
     if (trybPracy_ == ProstyUAR::TrybPracy::SieciowyRegulator) {
         uint8_t flagi = SterowanieBrak;
 
+        if (m_oczekujeStartuSieciowego)
+            flagi |= SterowanieStartSymulacji;
         if (m_oczekujeResetuI)
             flagi |= SterowanieResetI;
         if (m_oczekujeResetuD)
             flagi |= SterowanieResetD;
 
         wyslijPakietSterowaniaSieciowego(flagi);
+        m_oczekujeStartuSieciowego = false;
         m_oczekujeResetuI = false;
         m_oczekujeResetuD = false;
     } 
@@ -258,7 +262,7 @@ void UslugiUAR::startSymulacjiSieciowej()
     if (trybPracy_ != ProstyUAR::TrybPracy::SieciowyRegulator)
         return;
 
-    wyslijPakietSterowaniaSieciowego(SterowanieStartSymulacji);
+    m_oczekujeStartuSieciowego = true;
 }
 
 // Parametry generatora
