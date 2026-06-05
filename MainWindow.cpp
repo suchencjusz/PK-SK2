@@ -433,6 +433,10 @@ void MainWindow::onBtnStart()
     m_odebranoRamkeZWatchdoga = true;
     m_incydentyBrakRamki = 0;
     uslugi_.start();
+
+    if (trybPracy_ == TrybPracy::SieciowyRegulator) {
+        uslugi_.startSymulacjiSieciowej();
+    }
 }
 
 void MainWindow::onBtnStop()
