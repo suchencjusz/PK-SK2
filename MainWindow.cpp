@@ -250,6 +250,7 @@ void MainWindow::budujInterfejs()
     ui_->lblStatusPolaczenia->setWordWrap(true);
     m_opisSesjiPolaczenia = "Tryb: Stacjonarny";
     m_ostatniStanPolaczenia = "Brak aktywnego połączenia";
+    ustawWidocznoscWykresowDlaTrybu();
     odswiezTelemetryPolaczenia();
 }
 
@@ -295,11 +296,15 @@ void MainWindow::onProbka(const ProbkaUAR& p)
 {
     plotWY_->graph(0)->addData(p.t, p.w);
     plotWY_->graph(1)->addData(p.t, p.y);
-    plotE_->graph(0)->addData(p.t, p.e);
     plotU_->graph(0)->addData(p.t, p.u);
-    plotPID_->graph(0)->addData(p.t, p.uP);
-    plotPID_->graph(1)->addData(p.t, p.uI);
-    plotPID_->graph(2)->addData(p.t, p.uD);
+
+    const bool trybObiekt = (trybPracy_ == TrybPracy::SieciowyObiekt);
+    if (!trybObiekt) {
+        plotE_->graph(0)->addData(p.t, p.e);
+        plotPID_->graph(0)->addData(p.t, p.uP);
+        plotPID_->graph(1)->addData(p.t, p.uI);
+        plotPID_->graph(2)->addData(p.t, p.uD);
+    }
 
     // Os X: okno obserwacji + margines max 3 probki
     const double windowWidth = static_cast<double>(oknoObserwacjiS_);
@@ -322,9 +327,11 @@ void MainWindow::onProbka(const ProbkaUAR& p)
 
     plotWY_->xAxis->setRange(xRange);
 
-    plotE_->xAxis->setRange(xRange);
     plotU_->xAxis->setRange(xRange);
-    plotPID_->xAxis->setRange(xRange);
+    if (!trybObiekt) {
+        plotE_->xAxis->setRange(xRange);
+        plotPID_->xAxis->setRange(xRange);
+    }
 
     // Usuwanie starych probek
     auto pruneGraph = [targetN](QCPGraph* graph) {
@@ -341,11 +348,13 @@ void MainWindow::onProbka(const ProbkaUAR& p)
 
     pruneGraph(plotWY_->graph(0));
     pruneGraph(plotWY_->graph(1));
-    pruneGraph(plotE_->graph(0));
     pruneGraph(plotU_->graph(0));
-    pruneGraph(plotPID_->graph(0));
-    pruneGraph(plotPID_->graph(1));
-    pruneGraph(plotPID_->graph(2));
+    if (!trybObiekt) {
+        pruneGraph(plotE_->graph(0));
+        pruneGraph(plotPID_->graph(0));
+        pruneGraph(plotPID_->graph(1));
+        pruneGraph(plotPID_->graph(2));
+    }
 
     // SmartScale Y
     auto smartScale = [](QCustomPlot* plot) {
@@ -375,14 +384,18 @@ void MainWindow::onProbka(const ProbkaUAR& p)
     };
 
     smartScale(plotWY_);
-    smartScale(plotE_);
     smartScale(plotU_);
-    smartScale(plotPID_);
+    if (!trybObiekt) {
+        smartScale(plotE_);
+        smartScale(plotPID_);
+    }
 
     plotWY_->replot();
-    plotE_->replot();
     plotU_->replot();
-    plotPID_->replot();
+    if (!trybObiekt) {
+        plotE_->replot();
+        plotPID_->replot();
+    }
 
     aktualizujWyswietlaczeNumeryczne(p);
 }
@@ -427,6 +440,20 @@ void MainWindow::wyczyscWykresy()
     clearPlot(plotE_);
     clearPlot(plotU_);
     clearPlot(plotPID_);
+}
+
+void MainWindow::ustawWidocznoscWykresowDlaTrybu()
+{
+    const bool trybObiekt = (trybPracy_ == TrybPracy::SieciowyObiekt);
+
+    if (plotWY_)
+        plotWY_->setVisible(true);
+    if (plotU_)
+        plotU_->setVisible(true);
+    if (plotE_)
+        plotE_->setVisible(!trybObiekt);
+    if (plotPID_)
+        plotPID_->setVisible(!trybObiekt);
 }
 
 // Przyciski
@@ -675,6 +702,8 @@ void MainWindow::on_btnTrybSieciowy_clicked()
             uslugi_.ustawTrybPracy(ProstyUAR::TrybPracy::SieciowyObiekt);
         }
 
+        ustawWidocznoscWykresowDlaTrybu();
+
         wyzerujStanSieci();
         m_odebranoRamkeZWatchdoga = true; // zeby od razu nie wybalac bledu
 
@@ -716,6 +745,8 @@ void MainWindow::on_btnRozlaczSiec_clicked()
 
     uslugi_.ustawTrybPracy(ProstyUAR::TrybPracy::Stacjonarny);
     trybPracy_ = TrybPracy::Stacjonarny;
+
+    ustawWidocznoscWykresowDlaTrybu();
 
     wyzerujStanSieci();
 

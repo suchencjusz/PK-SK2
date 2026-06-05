@@ -64,6 +64,7 @@ private:
     // Synchronizacja / odswiezanie
     void odswiezGUIzKonfiguracji();
     void aktualizujWyswietlaczeNumeryczne(const ProbkaUAR& p);
+    void ustawWidocznoscWykresowDlaTrybu();
     void wyczyscWykresy();
     void onProbka(const ProbkaUAR& p);
     void wyzerujWyswietlacze();
