@@ -440,7 +440,10 @@ void MainWindow::onBtnStop()
 void MainWindow::onBtnReset()
 {
     onBtnStop();
+
     uslugi_.reset();
+    uslugi_.resetCalkowaniaPID();
+    uslugi_.resetRozniczkowaniaPID();
     wyczyscWykresy();
     wyzerujWyswietlacze();
 }
@@ -652,6 +655,9 @@ void MainWindow::on_btnTrybSieciowy_clicked()
 
         wyzerujStanSieci();
         m_odebranoRamkeZWatchdoga = true; // zeby od razu nie wybalac bledu
+
+        wyczyscWykresy();
+        wyzerujWyswietlacze();
         
         aktualizujDostepnoscKontrolek();
 
