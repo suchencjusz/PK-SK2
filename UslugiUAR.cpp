@@ -237,6 +237,14 @@ void UslugiUAR::resetRozniczkowaniaPID()
     }
 }
 
+void UslugiUAR::resetSymulacjiSieciowej()
+{
+    if (trybPracy_ != ProstyUAR::TrybPracy::SieciowyRegulator)
+        return;
+
+    wyslijPakietSterowaniaSieciowego(SterowanieResetSymulacji);
+}
+
 // Parametry generatora
 void UslugiUAR::ustawTypGeneratora(GeneratorWartosciZadanej::Typ typ)
 {
@@ -332,6 +340,11 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
         if (pakiet.rolaNadawcy != RolaInstancjiSieciowej::Regulator) {
             emit bladDekodowaniaRamki("Niepoprawna rola nadawcy dla pakietu Sterowanie.");
             return;
+        }
+
+        if ((pakiet.flagiSterowania & SterowanieResetSymulacji) != 0) {
+            sym_.reset();
+            emit symulacjaZresetowanaZSieci();
         }
 
         ustawSiecioweU(pakiet.u);

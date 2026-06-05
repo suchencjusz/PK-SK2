@@ -50,6 +50,7 @@ public:
 
     void resetCalkowaniaPID();
     void resetRozniczkowaniaPID();
+    void resetSymulacjiSieciowej();
 
     // Parametry generatora
     void ustawTypGeneratora(GeneratorWartosciZadanej::Typ typ);
@@ -95,6 +96,7 @@ signals:
     void opoznienieWyliczone(int32_t opoznienie);
     void bladDekodowaniaRamki(const QString& powod);
     void konfiguracjaZaktualizowanaZSieci();
+    void symulacjaZresetowanaZSieci();
 
 private:
     // Obsluga timera

@@ -237,6 +237,10 @@ void MainWindow::budujInterfejs()
         m_trwaZdalnaSynchronizacjaKonfiguracji = false;
         aktualizujDostepnoscKontrolek();
     });
+    connect(&uslugi_, &UslugiUAR::symulacjaZresetowanaZSieci, [this]() {
+        wyczyscWykresy();
+        wyzerujWyswietlacze();
+    });
 
     ui_->lblStatusPolaczenia->setWordWrap(true);
     m_opisSesjiPolaczenia = "Tryb: Stacjonarny";
@@ -442,8 +446,11 @@ void MainWindow::onBtnReset()
     onBtnStop();
 
     uslugi_.reset();
-    uslugi_.resetCalkowaniaPID();
-    uslugi_.resetRozniczkowaniaPID();
+
+    if (trybPracy_ == TrybPracy::SieciowyRegulator) {
+        uslugi_.resetSymulacjiSieciowej();
+    }
+
     wyczyscWykresy();
     wyzerujWyswietlacze();
 }
