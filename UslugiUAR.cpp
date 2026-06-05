@@ -364,6 +364,13 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
 
         if ((pakiet.flagiSterowania & SterowanieResetSymulacji) != 0) {
             sym_.reset();
+            m_krokSieciowySymulacji = 0;
+            m_ostatniKrokProbkiSieciowej = 0;
+            m_nadeszlaNowaProbkaSieciowa = false;
+            m_lastReceiveTimeMs = 0;
+            m_oczekujeResetuI = false;
+            m_oczekujeResetuD = false;
+            m_oczekujeStartuSieciowego = false;
             emit symulacjaZresetowanaZSieci();
         }
 
