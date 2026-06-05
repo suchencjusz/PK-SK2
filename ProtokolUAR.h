@@ -26,7 +26,8 @@ enum FlagiSterowaniaSieciowego : uint8_t
     SterowanieBrak = 0,          // 00000000
     SterowanieResetI = 1u << 0,  // 00000001
     SterowanieResetD = 1u << 1,  // 00000010
-    SterowanieResetSymulacji = 1u << 2  // 00000100
+    SterowanieResetSymulacji = 1u << 2,  // 00000100
+    SterowanieStopSymulacji = 1u << 3     // 00001000
 };
 
 // wylaczenie wyrownywania pamieci na potrzeby binarnych ramek sieciowych

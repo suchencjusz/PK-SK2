@@ -245,6 +245,14 @@ void UslugiUAR::resetSymulacjiSieciowej()
     wyslijPakietSterowaniaSieciowego(SterowanieResetSymulacji);
 }
 
+void UslugiUAR::stopSymulacjiSieciowej()
+{
+    if (trybPracy_ != ProstyUAR::TrybPracy::SieciowyRegulator)
+        return;
+
+    wyslijPakietSterowaniaSieciowego(SterowanieStopSymulacji);
+}
+
 // Parametry generatora
 void UslugiUAR::ustawTypGeneratora(GeneratorWartosciZadanej::Typ typ)
 {
@@ -345,6 +353,11 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
         if ((pakiet.flagiSterowania & SterowanieResetSymulacji) != 0) {
             sym_.reset();
             emit symulacjaZresetowanaZSieci();
+        }
+
+        if ((pakiet.flagiSterowania & SterowanieStopSymulacji) != 0) {
+            sym_.stop();
+            return;
         }
 
         ustawSiecioweU(pakiet.u);

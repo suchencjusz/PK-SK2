@@ -51,6 +51,7 @@ public:
     void resetCalkowaniaPID();
     void resetRozniczkowaniaPID();
     void resetSymulacjiSieciowej();
+    void stopSymulacjiSieciowej();
 
     // Parametry generatora
     void ustawTypGeneratora(GeneratorWartosciZadanej::Typ typ);

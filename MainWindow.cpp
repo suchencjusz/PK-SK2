@@ -438,6 +438,11 @@ void MainWindow::onBtnStart()
 void MainWindow::onBtnStop()
 {
     uslugi_.stop();
+
+    if (trybPracy_ == TrybPracy::SieciowyRegulator) {
+        uslugi_.stopSymulacjiSieciowej();
+    }
+
     m_watchdogUzbrojonyPoPierwszejRamce = false;
 }
 
