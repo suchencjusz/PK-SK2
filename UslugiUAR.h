@@ -99,6 +99,7 @@ signals:
     void bladDekodowaniaRamki(const QString& powod);
     void konfiguracjaZaktualizowanaZSieci();
     void symulacjaZresetowanaZSieci();
+    void krokSieciowyZrealizowany();
 
 private:
     // Obsluga timera

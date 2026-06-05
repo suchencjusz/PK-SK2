@@ -241,6 +241,11 @@ void MainWindow::budujInterfejs()
         wyczyscWykresy();
         wyzerujWyswietlacze();
     });
+    connect(&uslugi_, &UslugiUAR::krokSieciowyZrealizowany, [this]() {
+        m_watchdogUzbrojonyPoPierwszejRamce = true;
+        m_odebranoRamkeZWatchdoga = true;
+        m_incydentyBrakRamki = 0;
+    });
 
     ui_->lblStatusPolaczenia->setWordWrap(true);
     m_opisSesjiPolaczenia = "Tryb: Stacjonarny";
@@ -749,10 +754,6 @@ void MainWindow::onPolaczenieUtracone(const QString& powod)
 
 void MainWindow::onTcpRamkaOdebrana(const QByteArray& ramka)
 {
-    m_watchdogUzbrojonyPoPierwszejRamce = true;
-    m_odebranoRamkeZWatchdoga = true;
-    m_incydentyBrakRamki = 0;
-
     uslugi_.przetworzRamkeSieciowa(ramka);
 }
 

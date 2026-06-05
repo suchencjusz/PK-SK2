@@ -393,6 +393,7 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
 
         // Uruchamiamy krok tylko dla nowej probki sterowania.
         naPojedynczyKrokSieciowyObiektu();
+        emit krokSieciowyZrealizowany();
         return;
     }
 
@@ -425,6 +426,7 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
 
     m_ostatniKrokProbkiSieciowej = pakiet.krok;
     m_nadeszlaNowaProbkaSieciowa = true;
+    emit krokSieciowyZrealizowany();
 }
 
 
