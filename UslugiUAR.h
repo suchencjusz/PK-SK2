@@ -69,6 +69,9 @@ public:
         m_krokSieciowySymulacji = 0;
         m_ostatniKrokProbkiSieciowej = 0;
         m_nadeszlaNowaProbkaSieciowa = false;
+        m_maOczekujaceSterowanie = false;
+        m_krokOczekujacegoSterowania = 0;
+        m_oczekujacaProbkaSterowania = ProbkaUAR{ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
         if (trybPracy_ != ProstyUAR::TrybPracy::SieciowyRegulator) {
             m_oczekujeResetuI = false;
@@ -117,6 +120,9 @@ private:
     bool m_oczekujeResetuI = false;
     bool m_oczekujeResetuD = false;
     bool m_oczekujeStartuSieciowego = false;
+    bool m_maOczekujaceSterowanie = false;
+    uint64_t m_krokOczekujacegoSterowania = 0;
+    ProbkaUAR m_oczekujacaProbkaSterowania{ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
     ProbkaUAR ostatniaProbka_{ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 };

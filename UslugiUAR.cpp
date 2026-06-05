@@ -125,8 +125,11 @@ ProbkaUAR UslugiUAR::wykonajKrok()
         emit wyslijRamkeSieciowa(data);
     }
 
-    if (onProbka_)
-        onProbka_(ostatniaProbka_);
+    if (trybPracy_ != ProstyUAR::TrybPracy::SieciowyRegulator) {
+        if (onProbka_) {
+            onProbka_(ostatniaProbka_);
+        }
+    }
 
     return ostatniaProbka_;
 }
@@ -422,6 +425,15 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
 
     ustawSiecioweY(pakiet.y);
 
+    // [DODANE] Zamykamy obieg danych z tego kroku i aktualizujemy wykres
+    if (trybPracy_ == ProstyUAR::TrybPracy::SieciowyRegulator) {
+        ostatniaProbka_.y = pakiet.y;
+        ostatniaProbka_.e = ostatniaProbka_.w - pakiet.y; // korekta wizualna uchybu na wykresie
+        
+        if (onProbka_) {
+            onProbka_(ostatniaProbka_);
+        }
+    }
     // Mierzymy rzeczywisty interwał przychodzenia ramek i porownujemy
     // z oczekiwanym interwalem symulacji (TTms). Emitujemy opoznienie w ms.
     const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
