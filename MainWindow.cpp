@@ -279,6 +279,12 @@ void MainWindow::konfigurujWykresy()
     plotWY_->addGraph(); plotWY_->graph(0)->setPen(QPen(Qt::blue, 2)); plotWY_->graph(0)->setName("w(t)");
     plotWY_->addGraph(); plotWY_->graph(1)->setPen(QPen(Qt::red,  2)); plotWY_->graph(1)->setName("y(t)");
 
+    // --- DODANE WYKRESY ZNACZNIKÓW (indeks 2) ---
+    plotWY_->addGraph();
+    plotWY_->graph(2)->setPen(QPen(Qt::NoPen));
+    plotWY_->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, Qt::darkRed, Qt::darkRed, 6));
+    plotWY_->graph(2)->setName("Lag / Utrata (y)");
+
     setupPlot(plotE_, "Uchyb", "e(t)");
     plotE_->addGraph(); plotE_->graph(0)->setPen(QPen(Qt::magenta)); plotE_->graph(0)->setName("e(t)");
 
@@ -289,6 +295,12 @@ void MainWindow::konfigurujWykresy()
     plotPID_->addGraph(); plotPID_->graph(0)->setPen(QPen(Qt::blue));                 plotPID_->graph(0)->setName("uP(t)");
     plotPID_->addGraph(); plotPID_->graph(1)->setPen(QPen(QColor(255, 100, 0)));      plotPID_->graph(1)->setName("uI(t)");
     plotPID_->addGraph(); plotPID_->graph(2)->setPen(QPen(Qt::magenta));              plotPID_->graph(2)->setName("uD(t)");
+
+    // --- DODANE WYKRESY ZNACZNIKÓW (indeks 1) ---
+    plotU_->addGraph();
+    plotU_->graph(1)->setPen(QPen(Qt::NoPen));
+    plotU_->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, Qt::darkRed, Qt::darkRed, 6));
+    plotU_->graph(1)->setName("Lag / Utrata (u)");
 }
 
 // Tick/Rysowanie
@@ -297,6 +309,12 @@ void MainWindow::onProbka(const ProbkaUAR& p)
     plotWY_->graph(0)->addData(p.t, p.w);
     plotWY_->graph(1)->addData(p.t, p.y);
     plotU_->graph(0)->addData(p.t, p.u);
+
+    // --- DODANE RYSOWANIE ZNACZNIKÓW ---
+    if (p.zgadywana) {
+        plotWY_->graph(2)->addData(p.t, p.y);
+        plotU_->graph(1)->addData(p.t, p.u);
+    }
 
     const bool trybObiekt = (trybPracy_ == TrybPracy::SieciowyObiekt);
     if (!trybObiekt) {
@@ -346,9 +364,13 @@ void MainWindow::onProbka(const ProbkaUAR& p)
         data->removeBefore(it->key);
     };
 
+
     pruneGraph(plotWY_->graph(0));
     pruneGraph(plotWY_->graph(1));
+    pruneGraph(plotWY_->graph(2));
     pruneGraph(plotU_->graph(0));
+    pruneGraph(plotU_->graph(1));
+
     if (!trybObiekt) {
         pruneGraph(plotE_->graph(0));
         pruneGraph(plotPID_->graph(0));

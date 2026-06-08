@@ -21,6 +21,8 @@ struct ProbkaUAR
     double uP;
     double uI;
     double uD;
+
+    bool zgadywana = false;
 };
 
 class SymulacjaUAR : public QObject

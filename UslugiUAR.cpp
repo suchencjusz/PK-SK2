@@ -37,6 +37,9 @@ void UslugiUAR::reset()
     m_oczekujeResetuI = false;
     m_oczekujeResetuD = false;
     m_oczekujeStartuSieciowego = false;
+
+    m_y_k1 = 0.0;
+    m_y_k2 = 0.0;
 }
 
 // Stan symulacji
@@ -141,11 +144,25 @@ void UslugiUAR::onTimerTick()
         return;
 
     if (trybPracy_ == ProstyUAR::TrybPracy::SieciowyRegulator) {
-        // Po kroku startowym kolejne kroki regulatora wykonujemy
-        // tylko wtedy, gdy doszla nowa probka obiektu.
-        if (m_krokSieciowySymulacji > 0 && !m_nadeszlaNowaProbkaSieciowa)
-            return;
+        if (m_krokSieciowySymulacji > 0 && !m_nadeszlaNowaProbkaSieciowa) {
+            // PAKIET ZAGUBIONY! Odpalamy ekstrapolację liniową (First-Order Hold)
+            double y_zgadywane = m_y_k1;
 
+            ustawSiecioweY(y_zgadywane);
+
+            // Aktualizujemy historię, by ewentualny kolejny zgubiony pakiet pociągnął trend
+            m_y_k2 = m_y_k1;
+            m_y_k1 = y_zgadywane;
+
+            // Dorysowujemy brakującą próbkę na wykresie (zamykamy zawieszony obieg)
+            ostatniaProbka_.y = y_zgadywane;
+            ostatniaProbka_.e = ostatniaProbka_.w - y_zgadywane;
+            ostatniaProbka_.zgadywana = true; // Zgłaszamy fałszywkę!
+
+            if (onProbka_) {
+                onProbka_(ostatniaProbka_);
+            }
+        }
         m_nadeszlaNowaProbkaSieciowa = false;
     }
 
@@ -423,17 +440,24 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
         return;
     }
 
+
     ustawSiecioweY(pakiet.y);
 
-    // [DODANE] Zamykamy obieg danych z tego kroku i aktualizujemy wykres
+    // [DODANE] Zapisujemy prawdziwą historię do ekstrapolacji
+    m_y_k2 = m_y_k1;
+    m_y_k1 = pakiet.y;
+
+    // Zamykamy obieg danych z tego kroku i aktualizujemy wykres
     if (trybPracy_ == ProstyUAR::TrybPracy::SieciowyRegulator) {
         ostatniaProbka_.y = pakiet.y;
         ostatniaProbka_.e = ostatniaProbka_.w - pakiet.y; // korekta wizualna uchybu na wykresie
-        
+        ostatniaProbka_.zgadywana = false; // Mamy prawdziwe dane, kasujemy flagę!
+
         if (onProbka_) {
             onProbka_(ostatniaProbka_);
         }
     }
+
     // Mierzymy rzeczywisty interwał przychodzenia ramek i porownujemy
     // z oczekiwanym interwalem symulacji (TTms). Emitujemy opoznienie w ms.
     const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
