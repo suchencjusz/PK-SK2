@@ -386,7 +386,7 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
 
     if (lokalnieObiekt) {
         auto pakiet = std::get<PakietSterowania>(msg.payload);
-        qDebug() << "[UslugiUAR] Odebrano PakietSterowania: krok=" << pakiet.krok << "flagi=" << static_cast<int>(pakiet.flagiSterowania) << " m_krokSieciowySymulacji=" << m_krokSieciowySymulacji;
+        // qDebug() << "[UslugiUAR] Odebrano PakietSterowania: krok=" << pakiet.krok << "flagi=" << static_cast<int>(pakiet.flagiSterowania) << " m_krokSieciowySymulacji=" << m_krokSieciowySymulacji;
         if (pakiet.rolaNadawcy != RolaInstancjiSieciowej::Regulator) {
             emit bladDekodowaniaRamki("Niepoprawna rola nadawcy dla pakietu Sterowanie.");
             return;
@@ -423,7 +423,7 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
             sym_.regulator().resetRozniczkowania();
 
         const bool nowyKrok = (pakiet.krok > m_krokSieciowySymulacji);
-        qDebug() << "[UslugiUAR] nowyKrok?" << nowyKrok << "pakiet.krok=" << pakiet.krok << "m_krokSieciowySymulacji=" << m_krokSieciowySymulacji;
+        // qDebug() << "[UslugiUAR] nowyKrok?" << nowyKrok << "pakiet.krok=" << pakiet.krok << "m_krokSieciowySymulacji=" << m_krokSieciowySymulacji;
         if (!nowyKrok)
             return;
 
@@ -436,7 +436,7 @@ void UslugiUAR::przetworzRamkeSieciowa(const QByteArray& ramka)
     }
 
     auto pakiet = std::get<PakietProbkiSymulacji>(msg.payload);
-    qDebug() << "[UslugiUAR] Odebrano ProbkaSymulacji: krok=" << pakiet.krok << " m_ostatniKrokProbkiSieciowej=" << m_ostatniKrokProbkiSieciowej;
+    // qDebug() << "[UslugiUAR] Odebrano ProbkaSymulacji: krok=" << pakiet.krok << " m_ostatniKrokProbkiSieciowej=" << m_ostatniKrokProbkiSieciowej;
     if (pakiet.rolaNadawcy != RolaInstancjiSieciowej::Obiekt) {
         emit bladDekodowaniaRamki("Niepoprawna rola nadawcy dla pakietu ProbkaSymulacji.");
         return;
