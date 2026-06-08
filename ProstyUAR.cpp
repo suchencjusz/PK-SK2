@@ -34,6 +34,10 @@ double ProstyUAR::symuluj(double w)
         w_ = w;
         e_ = w_ - siecioweY_;
         u_ = regulator_.symuluj(e_);
+
+        if (!pauzaRegulatora_) {
+            u_ = regulator_.symuluj(e_);
+        }
         
         // Tlo - oryginalny ARX uruchomiony zeby plynnie dzialalo po rozlaczeniu
         model_.symuluj(u_);

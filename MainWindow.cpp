@@ -839,10 +839,10 @@ void MainWindow::aktualizujOpoznienie(int32_t opoznienie)
 
     const int32_t thresh = interwalMs_;
     if (std::abs(median) <= thresh) {
-        ui_->lblStatusWydajnosci->setText(QString("🟢 Symulacja wyrabia (Opóźń: %1 ms)").arg(median));
+        ui_->lblStatusWydajnosci->setText(QString("🟢 Symulacja wyrabia (Opóźń: %1 ms)").arg(std::abs(median)));
         ui_->lblStatusWydajnosci->setStyleSheet("color: green; font-weight: bold;");
     } else {
-        ui_->lblStatusWydajnosci->setText(QString("🔴 Symulacja NIE wyrabia (Opóźń: %1 ms)").arg(median));
+        ui_->lblStatusWydajnosci->setText(QString("🔴 Symulacja NIE wyrabia (Opóźń: %1 ms)").arg(std::abs(median)));
         ui_->lblStatusWydajnosci->setStyleSheet("color: red; font-weight: bold;");
     }
 }

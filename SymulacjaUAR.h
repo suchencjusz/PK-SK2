@@ -71,6 +71,9 @@ public:
     void ustawSiecioweY(double y) { uar_.ustawSiecioweY(y); }
     void ustawSiecioweU(double u) { uar_.ustawSiecioweU(u); }
     void ustawSiecioweW(double w) { uar_.ustawSiecioweW(w); }
+
+    void ustawPauzeRegulatora(bool pauza) { uar_.ustawPauzeRegulatora(pauza); }
+
 signals:
     void tick();
 

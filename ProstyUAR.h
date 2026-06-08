@@ -22,6 +22,8 @@ public:
     void ustawSiecioweU(double u) { siecioweU_ = u; }
     void ustawSiecioweW(double w) { siecioweW_ = w; }
 
+    void ustawPauzeRegulatora(bool pauza) { pauzaRegulatora_ = pauza; }
+
     // Reset
     void reset();
 
@@ -38,6 +40,8 @@ private:
     // Referencje do obiektow
     ModelARX& model_;
     RegulatorPID& regulator_;
+
+    bool pauzaRegulatora_ = false;
 
     TrybPracy tryb_ = TrybPracy::Stacjonarny;
     double siecioweY_ = 0.0;

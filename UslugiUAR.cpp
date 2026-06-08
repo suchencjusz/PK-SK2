@@ -145,24 +145,31 @@ void UslugiUAR::onTimerTick()
 
     if (trybPracy_ == ProstyUAR::TrybPracy::SieciowyRegulator) {
         if (m_krokSieciowySymulacji > 0 && !m_nadeszlaNowaProbkaSieciowa) {
-            // PAKIET ZAGUBIONY! Odpalamy ekstrapolację liniową (First-Order Hold)
+            // PAKIET ZAGUBIONY! Odpalamy "Zero-Order Hold" i ZAMRAŻAMY PID
+            sym_.ustawPauzeRegulatora(true);
+
+            // Trzymamy ostatnio znaną wartość y
             double y_zgadywane = m_y_k1;
 
             ustawSiecioweY(y_zgadywane);
 
-            // Aktualizujemy historię, by ewentualny kolejny zgubiony pakiet pociągnął trend
+            // Aktualizujemy historię (przy Zero-Order Hold po prostu powielamy starą wartość)
             m_y_k2 = m_y_k1;
             m_y_k1 = y_zgadywane;
 
             // Dorysowujemy brakującą próbkę na wykresie (zamykamy zawieszony obieg)
             ostatniaProbka_.y = y_zgadywane;
             ostatniaProbka_.e = ostatniaProbka_.w - y_zgadywane;
-            ostatniaProbka_.zgadywana = true; // Zgłaszamy fałszywkę!
+            ostatniaProbka_.zgadywana = true; // Zgłaszamy fałszywkę dla markera na wykresie
 
             if (onProbka_) {
                 onProbka_(ostatniaProbka_);
             }
+        } else {
+            // PAKIET DOSTARCZONY (lub to pierwszy krok) - PID ODWIESZONY
+            sym_.ustawPauzeRegulatora(false);
         }
+
         m_nadeszlaNowaProbkaSieciowa = false;
     }
 
